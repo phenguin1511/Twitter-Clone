@@ -204,3 +204,6 @@ interface Box2<Type = number> {
 const box2: Box2 = {
       value: 1
 }
+
+
+// Thêm Log
