@@ -1,20 +1,34 @@
-import { MongoClient } from "mongodb";
+import { MongoClient, Db, Collection } from "mongodb";
 import dotenv from "dotenv";
+import User from "../models/schemas/User.schema.js";
+
 dotenv.config();
 
 const uri = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@twitter.7f6io.mongodb.net/twitter-dev?retryWrites=true&w=majority`;
 const client = new MongoClient(uri);
 
-async function run() {
-      try {
-            await client.connect();
-            console.log("Connected to the database successfully");
-            const database = client.db('twitter-dev');
-      } catch (err) {
-            console.error("Connection failed", err);
-      } finally {
-            await client.close();
+
+class DatabaseService {
+      private client: MongoClient;
+      private db: Db;
+
+      constructor() {
+            this.client = new MongoClient(uri);
+            this.db = this.client.db(process.env.DB_NAME);
+      }
+
+      async connect() {
+            try {
+                  await this.client.connect();
+            } catch (err) {
+                  console.error("Connection failed", err);
+            }
+      }
+
+      get users(): Collection<User> {
+            return this.db.collection(process.env.DB_COLLLECTION_USERS as string);
       }
 }
 
-export { run };
+const databaseService = new DatabaseService();
+export default databaseService;

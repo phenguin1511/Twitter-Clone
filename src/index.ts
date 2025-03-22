@@ -2,7 +2,7 @@ import express from 'express';
 const app = express();
 import usersRouter from './routes/users.routes.js';
 import bodyParser from 'body-parser';
-import { run } from './services/database.services.js';
+import databaseService from './services/database.services.js';
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -14,7 +14,9 @@ app.get('/', (req, res) => {
 
 app.use('/users', usersRouter);
 
-run().catch(console.dir);
+databaseService.connect().then(() => {
+      console.log('Connected to the database successfully');
+});
 
 app.listen(3000, () => {
       console.log('Example app listening on port 3000!');
