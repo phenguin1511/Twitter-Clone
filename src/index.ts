@@ -1,10 +1,21 @@
+import express from 'express';
+const app = express();
+import usersRouter from './routes/users.routes.js';
+import bodyParser from 'body-parser';
+import { run } from './services/database.services.js';
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
-const fullName = 'Lê Hoài Nguyễn Phúc'
-
-const handle = async () => {
-      return new Promise((resolve) => {
-            resolve(fullName)
-      })
-}
+app.get('/', (req, res) => {
+      res.send('Hello World!');
+});
 
 
+
+app.use('/users', usersRouter);
+
+run().catch(console.dir);
+
+app.listen(3000, () => {
+      console.log('Example app listening on port 3000!');
+});
