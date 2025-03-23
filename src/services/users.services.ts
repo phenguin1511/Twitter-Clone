@@ -1,13 +1,14 @@
 import User from '~/models/schemas/User.schema.js';
 import databaseService from '~/services/database.services.js';
+import { RegisterRequest } from '~/models/requests/User.requests.js';
 
 class UsersService {
-  async registerUser(email: string, password: string) {
+  async registerUser(user: RegisterRequest) {
     try {
       const result = await databaseService.users.insertOne(
         new User({
-          email,
-          password
+          ...user,
+          date_of_birth: new Date(user.date_of_birth)
         })
       );
       return {
@@ -22,6 +23,11 @@ class UsersService {
         errCode: 3
       };
     }
+  }
+
+  async checkEmailExist(email: string) {
+    const user = await databaseService.users.findOne({ email });
+    return Boolean(user);
   }
 }
 

@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
-import User from '~/models/schemas/User.schema.js';
-import databaseService from '~/services/database.services.js';
 import usersService from '~/services/users.services.js';
+import { ParamsDictionary } from 'express-serve-static-core';
+import { RegisterRequest } from '~/models/requests/User.requests.js';
 
 class UsersController {
   loginController = (req: Request, res: Response) => {
@@ -20,10 +20,9 @@ class UsersController {
     }
   };
 
-  registerController = async (req: Request, res: Response) => {
-    const { email, password } = req.body;
+  registerController = async (req: Request<ParamsDictionary, any, RegisterRequest>, res: Response) => {
     try {
-      const result = await usersService.registerUser(email, password);
+      const result = await usersService.registerUser(req.body);
       res.status(201).json(result);
     } catch (error) {
       console.error('Error creating user', error);
