@@ -2,6 +2,9 @@ import { Request, Response, NextFunction } from 'express';
 import { checkSchema } from 'express-validator';
 import { validate } from '../utils/validation.js';
 import usersService from '../services/users.services.js';
+import { ErrorWithStatus } from '~/models/Errors.js';
+import HTTP_STATUS from '~/constants/httpStatus.js';
+import { USERS_MESSAGES } from '~/constants/messages.js';
 
 const loginValidator = (req: Request, res: Response, next: NextFunction) => {
   const { username, password } = req.body;
@@ -18,49 +21,61 @@ const loginValidator = (req: Request, res: Response, next: NextFunction) => {
 const registerValidator = validate(
   checkSchema({
     name: {
-      notEmpty: true,
+      notEmpty: {
+        errorMessage: USERS_MESSAGES.NAME_IS_REQUIRED
+      },
+      isString: {
+        errorMessage: USERS_MESSAGES.NAME_MUST_BE_STRING
+      },
       isLength: {
         options: { min: 1, max: 100 },
-        errorMessage: 'Name is required'
+        errorMessage: USERS_MESSAGES.NAME_MUST_BE_FROM_1_TO_100_CHARACTERS
       },
       trim: true
     },
     email: {
-      notEmpty: true,
+      notEmpty: {
+        errorMessage: USERS_MESSAGES.EMAIL_IS_REQUIRED
+      },
       isEmail: {
-        errorMessage: 'Invalid email'
+        errorMessage: USERS_MESSAGES.EMAIL_INVALID
       },
       trim: true,
       custom: {
         options: async (value) => {
           const isExistEmail = await usersService.checkEmailExist(value);
           if (isExistEmail) {
-            throw new Error('Email already exists');
+            throw new Error(USERS_MESSAGES.EMAIL_ALREADY_EXISTS);
           }
           return true;
         }
       }
     },
     password: {
-      notEmpty: true,
+      notEmpty: {
+        errorMessage: USERS_MESSAGES.PASSWORD_IS_REQUIRED
+      },
       isLength: {
         options: { min: 8, max: 50 },
-        errorMessage: 'Password must be at least 8 characters long'
+        errorMessage: USERS_MESSAGES.PASSWORD_MUST_BE_FROM_8_TO_50_CHARACTERS
       },
       isStrongPassword: {
         options: {
           minLength: 8,
           minLowercase: 1,
           minUppercase: 1
-        }
+        },
+        errorMessage: USERS_MESSAGES.PASSWORD_MUST_BE_STRONG
       },
       trim: true
     },
     confirmPassword: {
-      notEmpty: true,
+      notEmpty: {
+        errorMessage: USERS_MESSAGES.CONFIRM_PASSWORD_IS_REQUIRED
+      },
       isLength: {
         options: { min: 8, max: 50 },
-        errorMessage: 'Password must be at least 8 characters long'
+        errorMessage: USERS_MESSAGES.CONFIRM_PASSWORD_MUST_BE_FROM_8_TO_50_CHARACTERS
       },
       isStrongPassword: {
         options: {
@@ -73,7 +88,7 @@ const registerValidator = validate(
       custom: {
         options: (value, { req }) => {
           if (value !== req.body.password) {
-            throw new Error('Passwords do not match');
+            throw new Error(USERS_MESSAGES.CONFIRM_PASSWORD_DO_NOT_MATCH);
           }
           return true;
         }
@@ -85,7 +100,7 @@ const registerValidator = validate(
           strict: true,
           strictSeparator: true
         },
-        errorMessage: 'Invalid date of birth'
+        errorMessage: USERS_MESSAGES.DATE_OF_BIRTH_INVALID
       }
     }
   })

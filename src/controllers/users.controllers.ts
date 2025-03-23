@@ -21,16 +21,8 @@ class UsersController {
   };
 
   registerController = async (req: Request<ParamsDictionary, any, RegisterRequest>, res: Response) => {
-    try {
-      const result = await usersService.registerUser(req.body);
-      res.status(201).json(result);
-    } catch (error) {
-      console.error('Error creating user', error);
-      res.status(500).json({
-        message: 'Internal server error',
-        errCode: 3
-      });
-    }
+    const result = await usersService.registerUser(req.body);
+    return res.status(200).json(result);
   };
 }
 
