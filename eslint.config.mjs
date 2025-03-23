@@ -1,8 +1,8 @@
-import globals from 'globals'
-import js from '@eslint/js'
-import ts from '@typescript-eslint/eslint-plugin'
-import tsParser from '@typescript-eslint/parser'
-import eslintPluginPrettier from 'eslint-plugin-prettier'
+import globals from 'globals';
+import js from '@eslint/js';
+import ts from '@typescript-eslint/eslint-plugin';
+import tsParser from '@typescript-eslint/parser';
+import eslintPluginPrettier from 'eslint-plugin-prettier';
 
 /** @type {import('eslint').Linter.FlatConfig[]} */
 export default [
@@ -30,7 +30,7 @@ export default [
         'warn',
         {
           arrowParens: 'always',
-          semi: false,
+          semi: true,
           trailingComma: 'none',
           tabWidth: 2,
           endOfLine: 'auto',
@@ -47,4 +47,4 @@ export default [
   {
     ignores: ['**/node_modules/**', '**/dist/**']
   }
-]
+];
