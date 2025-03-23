@@ -1,6 +1,5 @@
 import { ObjectId } from 'mongodb';
-import UserVerifyStatus from '~/constants/enum.js';
-
+import { UserVerifyStatus } from '~/constants/enum.js';
 
 interface UserType {
   _id?: ObjectId;
