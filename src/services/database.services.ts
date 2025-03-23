@@ -2,7 +2,6 @@ import { MongoClient, Db, Collection } from 'mongodb';
 import dotenv from 'dotenv';
 import User from '../models/schemas/User.schema.js';
 import RefreshToken from '~/models/schemas/RefreshToken.schema.js';
-
 dotenv.config();
 
 const uri = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@twitter.7f6io.mongodb.net/twitter-dev?retryWrites=true&w=majority`;

@@ -7,7 +7,8 @@ import { TokenType } from '~/constants/enum.js';
 import { SignOptions } from 'jsonwebtoken';
 import RefreshToken from '~/models/schemas/RefreshToken.schema.js';
 import { ObjectId } from 'mongodb';
-
+import dotenv from 'dotenv';
+dotenv.config();
 class UsersService {
   private signAccessToken(user_id: string) {
     return signToken({
