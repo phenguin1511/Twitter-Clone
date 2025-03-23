@@ -33,7 +33,7 @@ export default [
           semi: true,
           trailingComma: 'none',
           tabWidth: 2,
-          endOfLine: 'auto',
+          endOfLine: 'none',
           useTabs: false,
           singleQuote: true,
           printWidth: 120,

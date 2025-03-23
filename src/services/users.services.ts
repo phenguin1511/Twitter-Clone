@@ -5,6 +5,8 @@ import hashPassword from '~/utils/crypto.js';
 import { signToken } from '~/utils/jwt.js';
 import { TokenType } from '~/constants/enum.js';
 import { SignOptions } from 'jsonwebtoken';
+import RefreshToken from '~/models/schemas/RefreshToken.schema.js';
+import { ObjectId } from 'mongodb';
 
 class UsersService {
   private signAccessToken(user_id: string) {
@@ -30,6 +32,14 @@ class UsersService {
     });
   }
 
+  async signToken(user_id: string) {
+    const [accessToken, refreshToken] = await Promise.all([
+      this.signAccessToken(user_id),
+      this.signRefreshToken(user_id)
+    ]);
+    return { accessToken, refreshToken };
+  }
+
   async registerUser(user: RegisterRequest) {
     try {
       const result = await databaseService.users.insertOne(
@@ -40,10 +50,11 @@ class UsersService {
         })
       );
       const user_id = result.insertedId.toString();
-      const [accessToken, refreshToken] = await Promise.all([
-        this.signAccessToken(user_id),
-        this.signRefreshToken(user_id)
-      ]);
+      const { accessToken, refreshToken } = await this.signToken(user_id);
+      await databaseService.refreshTokens.insertOne(new RefreshToken({
+        user_id: new ObjectId(user_id),
+        token: refreshToken
+      }));
       if (!accessToken || !refreshToken) {
         return {
           message: 'Internal server error',
@@ -69,6 +80,20 @@ class UsersService {
   async checkEmailExist(email: string) {
     const user = await databaseService.users.findOne({ email });
     return Boolean(user);
+  }
+
+  async login(user_id: string) {
+    const { accessToken, refreshToken } = await this.signToken(user_id);
+    await databaseService.refreshTokens.insertOne(new RefreshToken({
+      user_id: new ObjectId(user_id),
+      token: refreshToken
+    }));
+    return {
+      message: 'Login successful',
+      errCode: 0,
+      accessToken,
+      refreshToken
+    };
   }
 }
 

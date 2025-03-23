@@ -4,7 +4,7 @@ import { loginValidator, registerValidator } from '../middlewares/users.midlewar
 import usersController from '../controllers/users.controllers.js';
 import wrapRequestHandler from '../utils/handlers.js';
 
-usersRouter.post('/login', loginValidator, usersController.loginController);
+usersRouter.post('/login', loginValidator, wrapRequestHandler(usersController.loginController));
 usersRouter.post('/register', registerValidator, wrapRequestHandler(usersController.registerController));
 
 export default usersRouter;

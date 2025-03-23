@@ -1,22 +1,47 @@
-import { Request, Response, NextFunction } from 'express';
 import { checkSchema } from 'express-validator';
 import { validate } from '../utils/validation.js';
 import usersService from '../services/users.services.js';
-import { ErrorWithStatus } from '~/models/Errors.js';
-import HTTP_STATUS from '~/constants/httpStatus.js';
 import { USERS_MESSAGES } from '~/constants/messages.js';
+import databaseService from '~/services/database.services.js';
+import hashPassword from '~/utils/crypto.js';
 
-const loginValidator = (req: Request, res: Response, next: NextFunction) => {
-  const { username, password } = req.body;
-  if (!username || !password) {
-    res.status(400).json({
-      message: 'Invalid input',
-      errCode: 1
-    });
-  } else {
-    next();
-  }
-};
+const loginValidator = validate(
+  checkSchema({
+    email: {
+      isEmail: {
+        errorMessage: USERS_MESSAGES.EMAIL_INVALID
+      },
+      trim: true,
+      custom: {
+        options: async (value, { req }) => {
+          const user = await databaseService.users.findOne({ email: value, password: hashPassword(req.body.password) });
+          if (user === null) {
+            throw new Error(USERS_MESSAGES.EMAIL_OR_PASSWORD_INCORRECT);
+          } else {
+            req.user = user;
+          }
+          return true;
+        }
+      }
+    },
+    password: {
+      isLength: {
+        options: { min: 8, max: 50 },
+        errorMessage: USERS_MESSAGES.PASSWORD_MUST_BE_FROM_8_TO_50_CHARACTERS
+      },
+      isStrongPassword: {
+        options: {
+          minLength: 8,
+          minLowercase: 1,
+          minUppercase: 1
+        },
+        errorMessage: USERS_MESSAGES.PASSWORD_MUST_BE_STRONG
+      },
+      trim: true
+    }
+  })
+)
+
 
 const registerValidator = validate(
   checkSchema({
