@@ -1,6 +1,6 @@
 import User from '~/models/schemas/User.schema.js';
 import databaseService from '~/services/database.services.js';
-import { RegisterRequest } from '~/models/requests/User.requests.js';
+import { RegisterRequest, LogoutRequest } from '~/models/requests/User.requests.js';
 import hashPassword from '~/utils/crypto.js';
 import { signToken } from '~/utils/jwt.js';
 import { TokenType } from '~/constants/enum.js';
@@ -8,12 +8,13 @@ import { SignOptions } from 'jsonwebtoken';
 import RefreshToken from '~/models/schemas/RefreshToken.schema.js';
 import { ObjectId } from 'mongodb';
 import dotenv from 'dotenv';
+import { USERS_MESSAGES } from '~/constants/messages.js';
 dotenv.config();
 class UsersService {
   private signAccessToken(user_id: string) {
     return signToken({
       payload: {
-        user_id,
+        user_id: new ObjectId(user_id),
         token_type: TokenType.AccessToken
       },
       options: {
@@ -24,7 +25,7 @@ class UsersService {
   private signRefreshToken(user_id: string) {
     return signToken({
       payload: {
-        user_id,
+        user_id: new ObjectId(user_id),
         token_type: TokenType.RefreshToken
       },
       options: {
@@ -52,10 +53,12 @@ class UsersService {
       );
       const user_id = result.insertedId.toString();
       const { accessToken, refreshToken } = await this.signToken(user_id);
-      await databaseService.refreshTokens.insertOne(new RefreshToken({
-        user_id: new ObjectId(user_id),
-        token: refreshToken
-      }));
+      await databaseService.refreshTokens.insertOne(
+        new RefreshToken({
+          user_id: new ObjectId(user_id),
+          token: refreshToken
+        })
+      );
       if (!accessToken || !refreshToken) {
         return {
           message: 'Internal server error',
@@ -85,15 +88,27 @@ class UsersService {
 
   async login(user_id: string) {
     const { accessToken, refreshToken } = await this.signToken(user_id);
-    await databaseService.refreshTokens.insertOne(new RefreshToken({
-      user_id: new ObjectId(user_id),
-      token: refreshToken
-    }));
+    await databaseService.refreshTokens.insertOne(
+      new RefreshToken({
+        user_id: new ObjectId(user_id),
+        token: refreshToken
+      })
+    );
     return {
       message: 'Login successful',
       errCode: 0,
       accessToken,
       refreshToken
+    };
+  }
+
+  async logout(refreshToken: string) {
+    await databaseService.refreshTokens.deleteOne({
+      token: refreshToken
+    });
+    return {
+      message: USERS_MESSAGES.LOGOUT_SUCCESS,
+      errCode: 0
     };
   }
 }

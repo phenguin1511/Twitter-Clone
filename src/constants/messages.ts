@@ -18,11 +18,20 @@ export const USERS_MESSAGES = {
       CONFIRM_PASSWORD_MUST_BE_FROM_8_TO_50_CHARACTERS: 'Confirm password must be from 6 to 50 characters',
       CONFIRM_PASSWORD_DO_NOT_MATCH: 'Confirm password do not match',
 
-
       DATE_OF_BIRTH_INVALID: 'Invalid date of birth',
 
       USER_NOT_FOUND: 'User not found',
 
       LOGIN_SUCCESS: 'Login successfully',
       REGISTER_SUCCESS: 'Register successfully',
-}
+
+      ACCESS_TOKEN_IS_REQUIRED: 'Access token is required',
+      ACCESS_TOKEN_IS_INVALID: 'Access token is invalid',
+
+      REFRESH_TOKEN_IS_REQUIRED: 'Refresh token is required',
+      REFRESH_TOKEN_IS_INVALID: 'Refresh token is invalid',
+      REFRESH_TOKEN_MUST_BE_STRING: 'Refresh token must be a string',
+      USER_REFRESH_TOKEN_NOT_EXIST: 'User refresh token not exist',
+
+      LOGOUT_SUCCESS: 'Logout successfully'
+};

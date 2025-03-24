@@ -1,9 +1,23 @@
 import { Request } from 'express';
 import { User } from './models/User.js';
-
-
+import { TokenPayload } from './models/requests/User.requests.js';
 declare module 'express' {
-      interface Request {
-            user?: User
-      }
+  interface Request {
+    user?: User;
+    refreshToken?: TokenPayload;
+    decoded_authorization?: TokenPayload;
+    decoded_refresh_token?: TokenPayload;
+  }
+
+  interface Error {
+    status?: number;
+    message?: string;
+    errors?: any;
+  }
+}
+
+declare module 'lodash' {
+  interface LoDashStatic {
+    omit: any;
+  }
 }
