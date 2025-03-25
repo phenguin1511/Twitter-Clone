@@ -47,7 +47,7 @@ class UsersService {
     });
   }
 
-  async signToken(user_id: string) {
+  async signAccessTokenAndRefreshToken(user_id: string) {
     const [accessToken, refreshToken] = await Promise.all([
       this.signAccessToken(user_id),
       this.signRefreshToken(user_id)
@@ -75,7 +75,7 @@ class UsersService {
           }
         }
       ]);
-      const { accessToken, refreshToken } = await this.signToken(user_id);
+      const { accessToken, refreshToken } = await this.signAccessTokenAndRefreshToken(user_id);
       await databaseService.refreshTokens.insertOne(
         new RefreshToken({
           user_id: new ObjectId(user_id),
@@ -129,7 +129,7 @@ class UsersService {
         errCode: 1
       };
     }
-    const { accessToken, refreshToken } = await this.signToken(user._id.toString());
+    const { accessToken, refreshToken } = await this.signAccessTokenAndRefreshToken(user._id.toString());
     await databaseService.refreshTokens.insertOne(
       new RefreshToken({
         user_id: new ObjectId(user._id.toString()),
@@ -197,6 +197,36 @@ class UsersService {
     ])
     return {
       message: USERS_MESSAGES.RESEND_VERIFY_EMAIL_SUCCESS,
+      errCode: 0
+    };
+  }
+
+  private async signForgotPasswordToken(user_id: string) {
+    return signToken({
+      payload: {
+        user_id: new ObjectId(user_id),
+        token_type: TokenType.ForgotPasswordToken
+      },
+      privateKey: process.env.FORGOT_PASSWORD_TOKEN_SECRET as string,
+      options: {
+        expiresIn: process.env.FORGOT_PASSWORD_TOKEN_EXPIRES_IN as SignOptions['expiresIn']
+      }
+    });
+  }
+
+  async forgotPassword(user_id: string) {
+    const forgotPasswordToken = await this.signForgotPasswordToken(user_id);
+    await databaseService.users.updateOne({ _id: new ObjectId(user_id) }, [
+      {
+        $set: {
+          forgot_password_token: forgotPasswordToken,
+          updated_at: "$$NOW"
+        }
+      }
+    ])
+    console.log(forgotPasswordToken);
+    return {
+      message: USERS_MESSAGES.FORGOT_PASSWORD_SUCCESS,
       errCode: 0
     };
   }

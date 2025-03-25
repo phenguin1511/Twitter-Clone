@@ -235,4 +235,33 @@ const emailVerifyTokenValidator = validate(
   )
 );
 
-export { loginValidator, registerValidator, accessTokenValidator, refreshTokenValidator, emailVerifyTokenValidator };
+const emailValidator = validate(
+  checkSchema(
+    {
+      email: {
+        notEmpty: { errorMessage: USERS_MESSAGES.EMAIL_IS_REQUIRED },
+        isEmail: { errorMessage: USERS_MESSAGES.EMAIL_INVALID },
+        trim: true,
+        custom: {
+          options: async (value: string, { req }) => {
+            try {
+              const user = await databaseService.users.findOne({ email: value });
+              if (user === null) {
+                throw new Error(USERS_MESSAGES.EMAIL_NOT_FOUND);
+              }
+              (req as Request).user = user;
+              return true;
+            } catch (error) {
+              throw new ErrorWithStatus(USERS_MESSAGES.EMAIL_NOT_FOUND, HTTP_STATUS.UNAUTHORIZED);
+            }
+          }
+        }
+      },
+    },
+    ['body']
+  )
+);
+
+
+
+export { loginValidator, registerValidator, accessTokenValidator, refreshTokenValidator, emailVerifyTokenValidator, emailValidator };

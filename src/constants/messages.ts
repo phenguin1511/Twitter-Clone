@@ -46,4 +46,6 @@ export const USERS_MESSAGES = {
 
       USER_NOT_VERIFIED: 'User not verified',
       PASSWORD_INCORRECT: 'Password incorrect',
+
+      FORGOT_PASSWORD_SUCCESS: 'Forgot password successfully',
 };

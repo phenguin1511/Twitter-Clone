@@ -1,6 +1,6 @@
 import express from 'express';
 const usersRouter = express.Router();
-import { emailVerifyTokenValidator, loginValidator, registerValidator, accessTokenValidator, refreshTokenValidator } from '../middlewares/users.midlewares.js';
+import { emailVerifyTokenValidator, loginValidator, registerValidator, accessTokenValidator, refreshTokenValidator, emailValidator } from '../middlewares/users.midlewares.js';
 import usersController from '../controllers/users.controllers.js';
 import wrapRequestHandler from '../utils/handlers.js';
 /**
@@ -37,7 +37,7 @@ usersRouter.post(
  * Description: Verify email
  * Path: /users/verify-email
  * Method: POST
- * Body: { email: string }
+ * Body: { email_verify_token: string }
  */
 usersRouter.post('/verify-email', emailVerifyTokenValidator, wrapRequestHandler(usersController.verifyEmailController));
 
@@ -45,8 +45,18 @@ usersRouter.post('/verify-email', emailVerifyTokenValidator, wrapRequestHandler(
  * Description: Resend verify email
  * Path: /users/resend-verify-email
  * Method: POST
- * Body: { email: string }
+ * Headers: { Authorization: Bearer <access_token> }
  */
 usersRouter.post('/resend-verify-email', accessTokenValidator, wrapRequestHandler(usersController.resendVerifyEmailController));
+
+/**
+ * Description: Forgot password
+ * Path: /users/forgot-password
+ * Method: POST
+ * Body: { email: string }
+ */
+usersRouter.post('/forgot-password', emailValidator, wrapRequestHandler(usersController.forgotPasswordController));
+
+
 
 export default usersRouter;

@@ -29,3 +29,9 @@ export interface LoginRequest {
 export interface VerifyEmailRequest {
   email_verify_token: string;
 }
+
+
+export interface ForgotPasswordRequest {
+  email: string;
+}
+
