@@ -3,7 +3,7 @@ import databaseService from '~/services/database.services.js';
 import { RegisterRequest, LogoutRequest } from '~/models/requests/User.requests.js';
 import hashPassword from '~/utils/crypto.js';
 import { signToken } from '~/utils/jwt.js';
-import { TokenType } from '~/constants/enum.js';
+import { TokenType, UserVerifyStatus } from '~/constants/enum.js';
 import { SignOptions } from 'jsonwebtoken';
 import RefreshToken from '~/models/schemas/RefreshToken.schema.js';
 import { ObjectId } from 'mongodb';
@@ -34,6 +34,19 @@ class UsersService {
     });
   }
 
+  private async signEmailVerifyToken(user_id: string) {
+    return signToken({
+      payload: {
+        user_id: new ObjectId(user_id),
+        token_type: TokenType.EmailVerifyToken
+      },
+      privateKey: process.env.EMAIL_VERIFY_TOKEN_SECRET as string,
+      options: {
+        expiresIn: process.env.EMAIL_VERIFY_TOKEN_EXPIRES_IN as SignOptions['expiresIn']
+      }
+    });
+  }
+
   async signToken(user_id: string) {
     const [accessToken, refreshToken] = await Promise.all([
       this.signAccessToken(user_id),
@@ -44,14 +57,24 @@ class UsersService {
 
   async registerUser(user: RegisterRequest) {
     try {
+
       const result = await databaseService.users.insertOne(
         new User({
           ...user,
           date_of_birth: new Date(user.date_of_birth),
-          password: hashPassword(user.password)
+          password: hashPassword(user.password),
         })
       );
       const user_id = result.insertedId.toString();
+      const emailVerifyToken = await this.signEmailVerifyToken(user_id);
+      await databaseService.users.updateOne({ _id: new ObjectId(user_id) }, [
+        {
+          $set: {
+            email_verify_token: emailVerifyToken,
+            verify: UserVerifyStatus.Unverified
+          }
+        }
+      ]);
       const { accessToken, refreshToken } = await this.signToken(user_id);
       await databaseService.refreshTokens.insertOne(
         new RefreshToken({
@@ -70,7 +93,7 @@ class UsersService {
         errCode: 0,
         data: result,
         accessToken,
-        refreshToken
+        refreshToken,
       };
     } catch (error) {
       console.error('Error creating user', error);
@@ -86,11 +109,30 @@ class UsersService {
     return Boolean(user);
   }
 
-  async login(user_id: string) {
-    const { accessToken, refreshToken } = await this.signToken(user_id);
+  async login(email: string, password: string) {
+    const user = await databaseService.users.findOne({ email });
+    if (!user) {
+      return {
+        message: USERS_MESSAGES.USER_NOT_FOUND,
+        errCode: 1
+      };
+    }
+    if (user.password !== hashPassword(password)) {
+      return {
+        message: USERS_MESSAGES.PASSWORD_INCORRECT,
+        errCode: 1
+      };
+    }
+    if (user.verify === UserVerifyStatus.Unverified) {
+      return {
+        message: USERS_MESSAGES.USER_NOT_VERIFIED,
+        errCode: 1
+      };
+    }
+    const { accessToken, refreshToken } = await this.signToken(user._id.toString());
     await databaseService.refreshTokens.insertOne(
       new RefreshToken({
-        user_id: new ObjectId(user_id),
+        user_id: new ObjectId(user._id.toString()),
         token: refreshToken
       })
     );
@@ -108,6 +150,53 @@ class UsersService {
     });
     return {
       message: USERS_MESSAGES.LOGOUT_SUCCESS,
+      errCode: 0
+    };
+  }
+
+  async verifyEmail(user_id: string) {
+    const user = await databaseService.users.findOne({ _id: new ObjectId(user_id) });
+    if (!user) {
+      return {
+        message: USERS_MESSAGES.USER_NOT_FOUND,
+        errCode: 1
+      };
+    }
+    await databaseService.users.updateOne({ _id: new ObjectId(user_id) }, [
+      {
+        $set: {
+          email_verify_token: '',
+          verify: UserVerifyStatus.Verified,
+          updated_at: "$$NOW"
+        }
+      }
+    ])
+
+    return {
+      message: USERS_MESSAGES.VERIFY_EMAIL_SUCCESS,
+      errCode: 0,
+    };
+  }
+
+  async resendVerifyEmail(user_id: string) {
+    const user = await databaseService.users.findOne({ _id: new ObjectId(user_id) });
+    if (!user) {
+      return {
+        message: USERS_MESSAGES.USER_NOT_FOUND,
+        errCode: 1
+      };
+    }
+    const emailVerifyToken = await this.signEmailVerifyToken(user_id);
+    await databaseService.users.updateOne({ _id: new ObjectId(user_id) }, [
+      {
+        $set: {
+          email_verify_token: emailVerifyToken,
+          updated_at: "$$NOW"
+        }
+      }
+    ])
+    return {
+      message: USERS_MESSAGES.RESEND_VERIFY_EMAIL_SUCCESS,
       errCode: 0
     };
   }

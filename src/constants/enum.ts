@@ -8,7 +8,7 @@ enum TokenType {
   AccessToken,
   RefreshToken,
   ForgotPasswordToken,
-  EmailVerificationToken
+  EmailVerifyToken
 }
 
 export { UserVerifyStatus, TokenType };

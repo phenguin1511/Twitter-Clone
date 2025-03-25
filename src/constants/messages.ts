@@ -33,5 +33,17 @@ export const USERS_MESSAGES = {
       REFRESH_TOKEN_MUST_BE_STRING: 'Refresh token must be a string',
       USER_REFRESH_TOKEN_NOT_EXIST: 'User refresh token not exist',
 
-      LOGOUT_SUCCESS: 'Logout successfully'
+      LOGOUT_SUCCESS: 'Logout successfully',
+
+      VERIFY_EMAIL_SUCCESS: 'Verify email successfully',
+      VERIFY_EMAIL_FAILED: 'Verify email failed',
+
+      EMAIL_VERIFY_TOKEN_IS_REQUIRED: 'Email verify token is required',
+      EMAIL_VERIFY_TOKEN_IS_INVALID: 'Email verify token is invalid',
+
+      USER_ALREADY_VERIFIED: 'User already verified',
+      RESEND_VERIFY_EMAIL_SUCCESS: 'Resend verify email successfully',
+
+      USER_NOT_VERIFIED: 'User not verified',
+      PASSWORD_INCORRECT: 'Password incorrect',
 };

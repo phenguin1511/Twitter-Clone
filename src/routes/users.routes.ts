@@ -1,10 +1,8 @@
 import express from 'express';
 const usersRouter = express.Router();
-import { loginValidator, registerValidator, accessTokenValidator, refreshTokenValidator } from '../middlewares/users.midlewares.js';
+import { emailVerifyTokenValidator, loginValidator, registerValidator, accessTokenValidator, refreshTokenValidator } from '../middlewares/users.midlewares.js';
 import usersController from '../controllers/users.controllers.js';
 import wrapRequestHandler from '../utils/handlers.js';
-import { Request, Response } from 'express';
-
 /**
  * Description: Login
  * Path: /users/login
@@ -34,5 +32,21 @@ usersRouter.post(
       refreshTokenValidator,
       wrapRequestHandler(usersController.logoutController)
 );
+
+/**
+ * Description: Verify email
+ * Path: /users/verify-email
+ * Method: POST
+ * Body: { email: string }
+ */
+usersRouter.post('/verify-email', emailVerifyTokenValidator, wrapRequestHandler(usersController.verifyEmailController));
+
+/**
+ * Description: Resend verify email
+ * Path: /users/resend-verify-email
+ * Method: POST
+ * Body: { email: string }
+ */
+usersRouter.post('/resend-verify-email', accessTokenValidator, wrapRequestHandler(usersController.resendVerifyEmailController));
 
 export default usersRouter;

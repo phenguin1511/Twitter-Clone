@@ -1,7 +1,7 @@
 import { JwtPayload } from 'jsonwebtoken';
 import { Request } from 'express';
 import { ObjectId } from 'mongodb';
-import { TokenType } from '~/constants/enum.js';
+import { TokenType, UserVerifyStatus } from '~/constants/enum.js';
 
 export interface RegisterRequest {
   name: string;
@@ -21,3 +21,11 @@ export interface LogoutRequest {
   refreshToken: string;
 }
 
+export interface LoginRequest {
+  email: string;
+  password: string;
+}
+
+export interface VerifyEmailRequest {
+  email_verify_token: string;
+}

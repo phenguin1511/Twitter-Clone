@@ -7,6 +7,7 @@ declare module 'express' {
     refreshToken?: TokenPayload;
     decoded_authorization?: TokenPayload;
     decoded_refresh_token?: TokenPayload;
+    decoded_email_verify_token?: TokenPayload;
   }
 
   interface Error {

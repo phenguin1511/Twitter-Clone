@@ -207,4 +207,32 @@ const refreshTokenValidator = validate(
   )
 );
 
-export { loginValidator, registerValidator, accessTokenValidator, refreshTokenValidator };
+const emailVerifyTokenValidator = validate(
+  checkSchema(
+    {
+      email_verify_token:
+      {
+        notEmpty: { errorMessage: USERS_MESSAGES.EMAIL_VERIFY_TOKEN_IS_REQUIRED },
+        custom: {
+          options: async (value: string, { req }) => {
+            try {
+              const decoded_email_verify_token = await verifyToken(
+                {
+                  token: value,
+                  secretKey: process.env.EMAIL_VERIFY_TOKEN_SECRET
+                });
+              (req as Request).decoded_email_verify_token = decoded_email_verify_token;
+              return true;
+            } catch (error) {
+              throw new ErrorWithStatus(USERS_MESSAGES.EMAIL_VERIFY_TOKEN_IS_INVALID, HTTP_STATUS.UNAUTHORIZED);
+            }
+          }
+        }
+      },
+    },
+
+    ['body']
+  )
+);
+
+export { loginValidator, registerValidator, accessTokenValidator, refreshTokenValidator, emailVerifyTokenValidator };
