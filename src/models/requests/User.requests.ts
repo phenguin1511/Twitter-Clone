@@ -35,3 +35,6 @@ export interface ForgotPasswordRequest {
   email: string;
 }
 
+export interface VerifyForgotPasswordRequest {
+  forgot_password_token: string;
+}

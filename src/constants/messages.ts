@@ -48,4 +48,10 @@ export const USERS_MESSAGES = {
       PASSWORD_INCORRECT: 'Password incorrect',
 
       FORGOT_PASSWORD_SUCCESS: 'Forgot password successfully',
+      FORGOT_PASSWORD_TOKEN_IS_REQUIRED: 'Forgot password token is required',
+      VERIFY_FORGOT_PASSWORD_SUCCESS: 'Verify forgot password successfully',
+      VERIFY_FORGOT_PASSWORD_TOKEN_IS_INVALID: 'Verify forgot password token is invalid',
+
+      FORGOT_PASSWORD_TOKEN_IS_INVALID: 'Forgot password token is invalid',
+
 };

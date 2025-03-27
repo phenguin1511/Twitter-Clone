@@ -1,6 +1,6 @@
 import express from 'express';
 const usersRouter = express.Router();
-import { emailVerifyTokenValidator, loginValidator, registerValidator, accessTokenValidator, refreshTokenValidator, emailValidator } from '../middlewares/users.midlewares.js';
+import { emailVerifyTokenValidator, loginValidator, registerValidator, accessTokenValidator, refreshTokenValidator, emailValidator, forgotPasswordTokenValidator } from '../middlewares/users.midlewares.js';
 import usersController from '../controllers/users.controllers.js';
 import wrapRequestHandler from '../utils/handlers.js';
 /**
@@ -57,6 +57,12 @@ usersRouter.post('/resend-verify-email', accessTokenValidator, wrapRequestHandle
  */
 usersRouter.post('/forgot-password', emailValidator, wrapRequestHandler(usersController.forgotPasswordController));
 
-
+/**
+ * Description: verify link in email to reset password
+ * Path: /users/verify-forgot-password
+ * Method: POST
+ * Body: { forgot_password_token: string }
+ */
+usersRouter.post('/verify-forgot-password', forgotPasswordTokenValidator, wrapRequestHandler(usersController.verifyForgotPasswordController));
 
 export default usersRouter;

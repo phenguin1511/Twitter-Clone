@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import usersService from '~/services/users.services.js';
 import { ParamsDictionary } from 'express-serve-static-core';
-import { LogoutRequest, RegisterRequest, TokenPayload, LoginRequest, VerifyEmailRequest, ForgotPasswordRequest } from '~/models/requests/User.requests.js';
+import { LogoutRequest, RegisterRequest, TokenPayload, LoginRequest, VerifyEmailRequest, ForgotPasswordRequest, VerifyForgotPasswordRequest } from '~/models/requests/User.requests.js';
 import { USERS_MESSAGES } from '~/constants/messages.js';
 import databaseService from '~/services/database.services.js';
 import { ObjectId } from 'mongodb';
@@ -78,6 +78,13 @@ class UsersController {
     return res.status(200).json({
       message: USERS_MESSAGES.FORGOT_PASSWORD_SUCCESS,
       result
+    });
+  }
+
+  verifyForgotPasswordController = async (req: Request<ParamsDictionary, any, VerifyForgotPasswordRequest>, res: Response) => {
+    return res.status(200).json({
+      message: USERS_MESSAGES.VERIFY_FORGOT_PASSWORD_SUCCESS,
+      errCode: 0
     });
   }
 }

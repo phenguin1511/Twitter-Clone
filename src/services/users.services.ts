@@ -230,6 +230,7 @@ class UsersService {
       errCode: 0
     };
   }
+
 }
 
 const usersService = new UsersService();

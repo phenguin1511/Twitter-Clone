@@ -262,6 +262,38 @@ const emailValidator = validate(
   )
 );
 
-
-
-export { loginValidator, registerValidator, accessTokenValidator, refreshTokenValidator, emailVerifyTokenValidator, emailValidator };
+const forgotPasswordTokenValidator = validate(
+  checkSchema(
+    {
+      forgot_password_token: {
+        notEmpty: { errorMessage: USERS_MESSAGES.FORGOT_PASSWORD_TOKEN_IS_REQUIRED },
+        custom: {
+          options: async (value: string, { req }) => {
+            if (!value) {
+              throw new ErrorWithStatus(USERS_MESSAGES.FORGOT_PASSWORD_TOKEN_IS_REQUIRED, HTTP_STATUS.UNAUTHORIZED);
+            }
+            try {
+              const decoded_forgot_password_token = await verifyToken({ token: value, secretKey: process.env.FORGOT_PASSWORD_TOKEN_SECRET });
+              const user = await databaseService.users.findOne({ _id: new ObjectId(decoded_forgot_password_token.user_id) });
+              if (user === null) {
+                throw new ErrorWithStatus(USERS_MESSAGES.USER_NOT_FOUND, HTTP_STATUS.UNAUTHORIZED);
+              }
+              console.log(user.forgot_password_token, value);
+              if (user.forgot_password_token !== value) {
+                throw new ErrorWithStatus(USERS_MESSAGES.FORGOT_PASSWORD_TOKEN_IS_INVALID, HTTP_STATUS.UNAUTHORIZED);
+              } else {
+                (req as Request).decoded_forgot_password_token = decoded_forgot_password_token;
+                (req as Request).user = user;
+                return true;
+              }
+            } catch (error) {
+              throw new ErrorWithStatus(USERS_MESSAGES.VERIFY_FORGOT_PASSWORD_TOKEN_IS_INVALID, HTTP_STATUS.UNAUTHORIZED);
+            }
+          }
+        }
+      },
+    },
+    ['body']
+  )
+);
+export { loginValidator, registerValidator, accessTokenValidator, refreshTokenValidator, emailVerifyTokenValidator, emailValidator, forgotPasswordTokenValidator };
