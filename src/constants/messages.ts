@@ -54,4 +54,7 @@ export const USERS_MESSAGES = {
 
       FORGOT_PASSWORD_TOKEN_IS_INVALID: 'Forgot password token is invalid',
 
+      RESET_PASSWORD_SUCCESS: 'Reset password successfully',
+
+      GET_ME_SUCCESS: 'Get my profile successfully',
 };

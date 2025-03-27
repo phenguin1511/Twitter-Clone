@@ -278,7 +278,7 @@ const forgotPasswordTokenValidator = validate(
               if (user === null) {
                 throw new ErrorWithStatus(USERS_MESSAGES.USER_NOT_FOUND, HTTP_STATUS.UNAUTHORIZED);
               }
-              console.log(user.forgot_password_token, value);
+
               if (user.forgot_password_token !== value) {
                 throw new ErrorWithStatus(USERS_MESSAGES.FORGOT_PASSWORD_TOKEN_IS_INVALID, HTTP_STATUS.UNAUTHORIZED);
               } else {
@@ -296,4 +296,47 @@ const forgotPasswordTokenValidator = validate(
     ['body']
   )
 );
-export { loginValidator, registerValidator, accessTokenValidator, refreshTokenValidator, emailVerifyTokenValidator, emailValidator, forgotPasswordTokenValidator };
+
+const resetPasswordValidator = validate(
+  checkSchema(
+    {
+      forgot_password_token: {
+        notEmpty: { errorMessage: USERS_MESSAGES.FORGOT_PASSWORD_TOKEN_IS_REQUIRED },
+        custom: {
+          options: async (value: string, { req }) => {
+            const decoded_forgot_password_token = await verifyToken({ token: value, secretKey: process.env.FORGOT_PASSWORD_TOKEN_SECRET });
+            const user = await databaseService.users.findOne({ _id: new ObjectId(decoded_forgot_password_token.user_id) });
+            if (user === null) {
+              throw new ErrorWithStatus(USERS_MESSAGES.USER_NOT_FOUND, HTTP_STATUS.UNAUTHORIZED);
+            }
+            if (user.forgot_password_token !== value) {
+              throw new ErrorWithStatus(USERS_MESSAGES.FORGOT_PASSWORD_TOKEN_IS_INVALID, HTTP_STATUS.UNAUTHORIZED);
+            }
+            (req as Request).user = user;
+            return true;
+          }
+        }
+      },
+      new_password: {
+        notEmpty: { errorMessage: USERS_MESSAGES.PASSWORD_IS_REQUIRED },
+        isLength: { options: { min: 8, max: 50 }, errorMessage: USERS_MESSAGES.PASSWORD_MUST_BE_FROM_8_TO_50_CHARACTERS },
+        isStrongPassword: { options: { minLength: 8, minLowercase: 1, minUppercase: 1 }, errorMessage: USERS_MESSAGES.PASSWORD_MUST_BE_STRONG },
+      },
+      confirm_new_password: {
+        notEmpty: { errorMessage: USERS_MESSAGES.CONFIRM_PASSWORD_IS_REQUIRED },
+        isLength: { options: { min: 8, max: 50 }, errorMessage: USERS_MESSAGES.CONFIRM_PASSWORD_MUST_BE_FROM_8_TO_50_CHARACTERS },
+        isStrongPassword: { options: { minLength: 8, minLowercase: 1, minUppercase: 1 }, errorMessage: USERS_MESSAGES.PASSWORD_MUST_BE_STRONG },
+        custom: {
+          options: (value, { req }) => {
+            if (value !== req.body.new_password) {
+              throw new Error(USERS_MESSAGES.CONFIRM_PASSWORD_DO_NOT_MATCH);
+            }
+            return true;
+          }
+        }
+      }
+    },
+    ['body']
+  )
+)
+export { resetPasswordValidator, loginValidator, registerValidator, accessTokenValidator, refreshTokenValidator, emailVerifyTokenValidator, emailValidator, forgotPasswordTokenValidator };

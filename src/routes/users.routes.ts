@@ -1,6 +1,6 @@
 import express from 'express';
 const usersRouter = express.Router();
-import { emailVerifyTokenValidator, loginValidator, registerValidator, accessTokenValidator, refreshTokenValidator, emailValidator, forgotPasswordTokenValidator } from '../middlewares/users.midlewares.js';
+import { emailVerifyTokenValidator, loginValidator, registerValidator, accessTokenValidator, refreshTokenValidator, emailValidator, forgotPasswordTokenValidator, resetPasswordValidator } from '../middlewares/users.midlewares.js';
 import usersController from '../controllers/users.controllers.js';
 import wrapRequestHandler from '../utils/handlers.js';
 /**
@@ -64,5 +64,21 @@ usersRouter.post('/forgot-password', emailValidator, wrapRequestHandler(usersCon
  * Body: { forgot_password_token: string }
  */
 usersRouter.post('/verify-forgot-password', forgotPasswordTokenValidator, wrapRequestHandler(usersController.verifyForgotPasswordController));
+
+/**
+ * Description: Reset password
+ * Path: /users/reset-password
+ * Method: POST
+ * Body: { forgot_password_token: string, new_password: string, confirm_new_password: string }
+ */
+usersRouter.post('/reset-password', resetPasswordValidator, wrapRequestHandler(usersController.resetPasswordController));
+
+/**
+ * Description: Get my profile
+ * Path: /me
+ * Method: GET
+ * Headers: { Authorization: Bearer <access_token> }
+ */
+usersRouter.get('/me', accessTokenValidator, wrapRequestHandler(usersController.getMeController));
 
 export default usersRouter;

@@ -1,6 +1,6 @@
 import User from '~/models/schemas/User.schema.js';
 import databaseService from '~/services/database.services.js';
-import { RegisterRequest, LogoutRequest } from '~/models/requests/User.requests.js';
+import { RegisterRequest, LogoutRequest, ResetPasswordRequest } from '~/models/requests/User.requests.js';
 import hashPassword from '~/utils/crypto.js';
 import { signToken } from '~/utils/jwt.js';
 import { TokenType, UserVerifyStatus } from '~/constants/enum.js';
@@ -231,6 +231,42 @@ class UsersService {
     };
   }
 
+  async resetPassword(user_id: string, { new_password }: ResetPasswordRequest) {
+    await databaseService.users.updateOne({ _id: new ObjectId(user_id) }, [
+      {
+        $set: {
+          password: hashPassword(new_password),
+          updated_at: "$$NOW"
+        }
+      }
+    ])
+    return {
+      message: USERS_MESSAGES.RESET_PASSWORD_SUCCESS,
+      errCode: 0
+    };
+  }
+
+  async getMe(user_id: string) {
+    const user = await databaseService.users.findOne({ _id: new ObjectId(user_id) },
+      {
+        projection: {
+          password: 0,
+          email_verify_token: 0,
+          forgot_password_token: 0,
+        }
+      });
+    if (!user) {
+      return {
+        message: USERS_MESSAGES.USER_NOT_FOUND,
+        errCode: 1
+      };
+    }
+    return {
+      message: USERS_MESSAGES.GET_ME_SUCCESS,
+      errCode: 0,
+      data: user
+    };
+  }
 }
 
 const usersService = new UsersService();
