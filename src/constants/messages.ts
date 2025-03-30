@@ -63,12 +63,22 @@ export const USERS_MESSAGES = {
       LOCATION_IS_REQUIRED: 'Location is required',
       WEBSITE_IS_REQUIRED: 'Website is required',
       USERNAME_IS_REQUIRED: 'Username is required',
+
       BIO_MUST_BE_STRING: 'Bio must be a string',
       BIO_MUST_BE_FROM_1_TO_200_CHARACTERS: 'Bio must be from 1 to 200 characters',
+
       LOCATION_MUST_BE_STRING: 'Location must be a string',
       LOCATION_MUST_BE_FROM_1_TO_200_CHARACTERS: 'Location must be from 1 to 200 characters',
+
       WEBSITE_MUST_BE_STRING: 'Website must be a string',
       WEBSITE_MUST_BE_FROM_1_TO_200_CHARACTERS: 'Website must be from 1 to 200 characters',
+
       USERNAME_MUST_BE_STRING: 'Username must be a string',
       USERNAME_MUST_BE_FROM_1_TO_50_CHARACTERS: 'Username must be from 1 to 50 characters',
+
+      AVATAR_MUST_BE_STRING: 'Avatar must be a string',
+      AVATAR_MUST_BE_FROM_1_TO_200_CHARACTERS: 'Avatar must be from 1 to 200 characters',
+
+      COVER_PHOTO_MUST_BE_STRING: 'Cover photo must be a string',
+      COVER_PHOTO_MUST_BE_FROM_1_TO_200_CHARACTERS: 'Cover photo must be from 1 to 200 characters',
 };

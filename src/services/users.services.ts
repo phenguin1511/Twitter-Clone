@@ -182,7 +182,7 @@ class UsersService {
       {
         $set: {
           email_verify_token: emailVerifyToken,
-          updateAt: "$$NOW"
+          updatedAt: "$$NOW"
         }
       }
     ])
@@ -261,6 +261,7 @@ class UsersService {
   }
 
   async updateMe(user_id: string, body: UpdateMeRequest) {
+    const _body = body.date_of_birth ? { ...body, date_of_birth: new Date(body.date_of_birth) } : body;
     const user = await databaseService.users.findOne({ _id: new ObjectId(user_id) });
     if (!user) {
       return {
@@ -268,9 +269,19 @@ class UsersService {
         errCode: 1
       };
     }
+    await databaseService.users.updateOne({ _id: new ObjectId(user_id) }, [
+      {
+        $set: {
+          ..._body,
+          updatedAt: "$$NOW"
+        }
+      }
+    ])
+    const user_updated = await databaseService.users.findOne({ _id: new ObjectId(user_id) });
     return {
       message: USERS_MESSAGES.UPDATE_ME_SUCCESS,
-      errCode: 0
+      errCode: 0,
+      data: user_updated
     };
   }
 }

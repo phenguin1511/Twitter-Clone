@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import usersService from '~/services/users.services.js';
 import { ParamsDictionary } from 'express-serve-static-core';
-import { LogoutRequest, RegisterRequest, TokenPayload, LoginRequest, VerifyEmailRequest, ForgotPasswordRequest, VerifyForgotPasswordRequest, ResetPasswordRequest } from '~/models/requests/User.requests.js';
+import { LogoutRequest, RegisterRequest, TokenPayload, LoginRequest, VerifyEmailRequest, ForgotPasswordRequest, VerifyForgotPasswordRequest, ResetPasswordRequest, UpdateMeRequest } from '~/models/requests/User.requests.js';
 import { USERS_MESSAGES } from '~/constants/messages.js';
 import databaseService from '~/services/database.services.js';
 import { ObjectId } from 'mongodb';
@@ -116,9 +116,9 @@ class UsersController {
       user
     });
   }
-  updateMeController = async (req: Request, res: Response) => {
+  updateMeController = async (req: Request<ParamsDictionary, any, UpdateMeRequest>, res: Response) => {
     const { user_id } = req.decoded_authorization as TokenPayload;
-    const body = _.pick(req.body, ['name', 'date_of_birth', 'bio', 'location', 'website', 'username', 'avatar', 'cover_photo']);
+    const body = req.body;
     const result = await usersService.updateMe(user_id, body);
     return res.status(200).json({
       message: USERS_MESSAGES.UPDATE_ME_SUCCESS,

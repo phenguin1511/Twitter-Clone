@@ -3,6 +3,8 @@ const usersRouter = express.Router();
 import { emailVerifyTokenValidator, loginValidator, registerValidator, accessTokenValidator, refreshTokenValidator, emailValidator, forgotPasswordTokenValidator, resetPasswordValidator, verifiedUserValidator, updateMeValidator } from '../middlewares/users.midlewares.js';
 import usersController from '../controllers/users.controllers.js';
 import wrapRequestHandler from '../utils/handlers.js';
+import { filterMiddleware } from '~/middlewares/common.middleware.js';
+import { UpdateMeRequest } from '~/models/requests/User.requests.js';
 /**
  * Description: Login
  * Path: /users/login
@@ -88,5 +90,10 @@ usersRouter.get('/me', accessTokenValidator, wrapRequestHandler(usersController.
  * Headers: { Authorization: Bearer <access_token> }
  * Body: new User
  */
-usersRouter.patch('/me', accessTokenValidator, verifiedUserValidator, updateMeValidator, wrapRequestHandler(usersController.updateMeController));
+usersRouter.patch('/me',
+      accessTokenValidator,
+      verifiedUserValidator,
+      updateMeValidator,
+      filterMiddleware<UpdateMeRequest>(['name', 'date_of_birth', 'bio', 'location', 'website', 'username', 'avatar', 'cover_photo']),
+      wrapRequestHandler(usersController.updateMeController));
 export default usersRouter;

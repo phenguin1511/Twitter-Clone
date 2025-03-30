@@ -389,6 +389,18 @@ const updateMeValidator = validate(
         isString: { errorMessage: USERS_MESSAGES.USERNAME_MUST_BE_STRING },
         isLength: { options: { min: 1, max: 50 }, errorMessage: USERS_MESSAGES.USERNAME_MUST_BE_FROM_1_TO_50_CHARACTERS },
         trim: true
+      },
+      avatar: {
+        optional: true,
+        isString: { errorMessage: USERS_MESSAGES.AVATAR_MUST_BE_STRING },
+        isLength: { options: { min: 1, max: 200 }, errorMessage: USERS_MESSAGES.AVATAR_MUST_BE_FROM_1_TO_200_CHARACTERS },
+        trim: true
+      },
+      cover_photo: {
+        optional: true,
+        isString: { errorMessage: USERS_MESSAGES.COVER_PHOTO_MUST_BE_STRING },
+        isLength: { options: { min: 1, max: 200 }, errorMessage: USERS_MESSAGES.COVER_PHOTO_MUST_BE_FROM_1_TO_200_CHARACTERS },
+        trim: true
       }
     },
     ['body']
