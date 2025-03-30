@@ -43,9 +43,9 @@ export default class User {
   constructor(user: UserType) {
     this._id = user._id || new ObjectId();
     this.name = user.name || '';
-    this.email = user.email;
+    this.email = user.email || '';
     this.date_of_birth = user.date_of_birth || new Date();
-    this.password = user.password;
+    this.password = user.password || '';
     this.createdAt = user.createdAt || new Date();
     this.updatedAt = user.updatedAt || new Date();
     this.email_verify_token = user.email_verify_token || '';

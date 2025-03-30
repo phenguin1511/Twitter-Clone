@@ -1,6 +1,6 @@
 import express from 'express';
 const usersRouter = express.Router();
-import { emailVerifyTokenValidator, loginValidator, registerValidator, accessTokenValidator, refreshTokenValidator, emailValidator, forgotPasswordTokenValidator, resetPasswordValidator } from '../middlewares/users.midlewares.js';
+import { emailVerifyTokenValidator, loginValidator, registerValidator, accessTokenValidator, refreshTokenValidator, emailValidator, forgotPasswordTokenValidator, resetPasswordValidator, verifiedUserValidator, updateMeValidator } from '../middlewares/users.midlewares.js';
 import usersController from '../controllers/users.controllers.js';
 import wrapRequestHandler from '../utils/handlers.js';
 /**
@@ -81,4 +81,12 @@ usersRouter.post('/reset-password', resetPasswordValidator, wrapRequestHandler(u
  */
 usersRouter.get('/me', accessTokenValidator, wrapRequestHandler(usersController.getMeController));
 
+/**
+ * Description:
+ * Path: /me
+ * Method: GET
+ * Headers: { Authorization: Bearer <access_token> }
+ * Body: new User
+ */
+usersRouter.patch('/me', accessTokenValidator, verifiedUserValidator, updateMeValidator, wrapRequestHandler(usersController.updateMeController));
 export default usersRouter;

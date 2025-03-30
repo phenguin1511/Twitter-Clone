@@ -57,4 +57,18 @@ export const USERS_MESSAGES = {
       RESET_PASSWORD_SUCCESS: 'Reset password successfully',
 
       GET_ME_SUCCESS: 'Get my profile successfully',
+      UPDATE_ME_SUCCESS: 'Update my profile successfully',
+
+      BIO_IS_REQUIRED: 'Bio is required',
+      LOCATION_IS_REQUIRED: 'Location is required',
+      WEBSITE_IS_REQUIRED: 'Website is required',
+      USERNAME_IS_REQUIRED: 'Username is required',
+      BIO_MUST_BE_STRING: 'Bio must be a string',
+      BIO_MUST_BE_FROM_1_TO_200_CHARACTERS: 'Bio must be from 1 to 200 characters',
+      LOCATION_MUST_BE_STRING: 'Location must be a string',
+      LOCATION_MUST_BE_FROM_1_TO_200_CHARACTERS: 'Location must be from 1 to 200 characters',
+      WEBSITE_MUST_BE_STRING: 'Website must be a string',
+      WEBSITE_MUST_BE_FROM_1_TO_200_CHARACTERS: 'Website must be from 1 to 200 characters',
+      USERNAME_MUST_BE_STRING: 'Username must be a string',
+      USERNAME_MUST_BE_FROM_1_TO_50_CHARACTERS: 'Username must be from 1 to 50 characters',
 };

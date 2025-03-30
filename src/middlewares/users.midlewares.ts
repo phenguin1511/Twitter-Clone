@@ -8,8 +8,13 @@ import hashPassword from '~/utils/crypto.js';
 import { verifyToken } from '~/utils/jwt.js';
 import { ErrorWithStatus } from '~/models/Errors.js';
 import jwt from 'jsonwebtoken';
-import { Request } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { Collection, ObjectId } from 'mongodb';
+import User from '~/models/schemas/User.schema.js';
+import { UserVerifyStatus } from '~/constants/enum.js';
+import { TokenPayload } from '~/models/requests/User.requests.js';
+
+
 
 const loginValidator = validate(
   checkSchema(
@@ -339,4 +344,55 @@ const resetPasswordValidator = validate(
     ['body']
   )
 )
-export { resetPasswordValidator, loginValidator, registerValidator, accessTokenValidator, refreshTokenValidator, emailVerifyTokenValidator, emailValidator, forgotPasswordTokenValidator };
+
+export const verifiedUserValidator = (req: Request, res: Response, next: NextFunction) => {
+  const { verify } = req.decoded_authorization as TokenPayload;
+  if (verify !== UserVerifyStatus.Verified) {
+    throw new ErrorWithStatus(USERS_MESSAGES.USER_NOT_VERIFIED, HTTP_STATUS.FORBIDDEN);
+  }
+  next();
+}
+
+const updateMeValidator = validate(
+  checkSchema(
+    {
+      name: {
+        optional: true,
+        isString: { errorMessage: USERS_MESSAGES.NAME_MUST_BE_STRING },
+        isLength: { options: { min: 1, max: 100 }, errorMessage: USERS_MESSAGES.NAME_MUST_BE_FROM_1_TO_100_CHARACTERS },
+        trim: true
+      },
+      date_of_birth: {
+        optional: true,
+        isISO8601: { options: { strict: true, strictSeparator: true }, errorMessage: USERS_MESSAGES.DATE_OF_BIRTH_INVALID }
+      },
+      bio: {
+        optional: true,
+        isString: { errorMessage: USERS_MESSAGES.BIO_MUST_BE_STRING },
+        isLength: { options: { min: 1, max: 200 }, errorMessage: USERS_MESSAGES.BIO_MUST_BE_FROM_1_TO_200_CHARACTERS },
+        trim: true
+      },
+      location: {
+        optional: true,
+        isString: { errorMessage: USERS_MESSAGES.LOCATION_MUST_BE_STRING },
+        isLength: { options: { min: 1, max: 200 }, errorMessage: USERS_MESSAGES.LOCATION_MUST_BE_FROM_1_TO_200_CHARACTERS },
+        trim: true
+      },
+      website: {
+        optional: true,
+        isString: { errorMessage: USERS_MESSAGES.WEBSITE_MUST_BE_STRING },
+        isLength: { options: { min: 1, max: 200 }, errorMessage: USERS_MESSAGES.WEBSITE_MUST_BE_FROM_1_TO_200_CHARACTERS },
+        trim: true
+      },
+      username: {
+        optional: true,
+        isString: { errorMessage: USERS_MESSAGES.USERNAME_MUST_BE_STRING },
+        isLength: { options: { min: 1, max: 50 }, errorMessage: USERS_MESSAGES.USERNAME_MUST_BE_FROM_1_TO_50_CHARACTERS },
+        trim: true
+      }
+    },
+    ['body']
+  )
+)
+
+export { resetPasswordValidator, loginValidator, registerValidator, accessTokenValidator, refreshTokenValidator, emailVerifyTokenValidator, emailValidator, forgotPasswordTokenValidator, updateMeValidator };

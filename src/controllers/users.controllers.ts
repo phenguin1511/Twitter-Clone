@@ -6,10 +6,13 @@ import { USERS_MESSAGES } from '~/constants/messages.js';
 import databaseService from '~/services/database.services.js';
 import { ObjectId } from 'mongodb';
 import { UserVerifyStatus } from '~/constants/enum.js';
+import User from '~/models/schemas/User.schema.js';
+import _ from 'lodash';
 class UsersController {
   loginController = async (req: Request<ParamsDictionary, any, LoginRequest>, res: Response) => {
-    const { email, password } = req.body;
-    const result = await usersService.login(email, password);
+    const user = req.user as User;
+    const user_id = user._id as ObjectId;
+    const result = await usersService.login({ user_id: user_id.toString(), verify: user.verify as UserVerifyStatus });
     return res.status(200).json({
       message: USERS_MESSAGES.LOGIN_SUCCESS,
       result
@@ -73,8 +76,16 @@ class UsersController {
   }
 
   forgotPasswordController = async (req: Request<ParamsDictionary, any, ForgotPasswordRequest>, res: Response) => {
-    const { _id } = req.user;
-    const result = await usersService.forgotPassword(_id.toString());
+    const user = req.user as User;
+    if (!user._id || !user.verify) {
+      return res.status(400).json({
+        message: USERS_MESSAGES.USER_NOT_FOUND
+      });
+    }
+    const result = await usersService.forgotPassword({
+      user_id: user._id.toString(),
+      verify: user.verify as UserVerifyStatus
+    });
     return res.status(200).json({
       message: USERS_MESSAGES.FORGOT_PASSWORD_SUCCESS,
       result
@@ -105,7 +116,17 @@ class UsersController {
       user
     });
   }
+  updateMeController = async (req: Request, res: Response) => {
+    const { user_id } = req.decoded_authorization as TokenPayload;
+    const body = _.pick(req.body, ['name', 'date_of_birth', 'bio', 'location', 'website', 'username', 'avatar', 'cover_photo']);
+    const result = await usersService.updateMe(user_id, body);
+    return res.status(200).json({
+      message: USERS_MESSAGES.UPDATE_ME_SUCCESS,
+      result
+    });
+  }
 }
+
 
 const usersController = new UsersController();
 export default usersController;
