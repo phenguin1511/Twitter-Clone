@@ -407,4 +407,26 @@ const updateMeValidator = validate(
   )
 )
 
-export { resetPasswordValidator, loginValidator, registerValidator, accessTokenValidator, refreshTokenValidator, emailVerifyTokenValidator, emailValidator, forgotPasswordTokenValidator, updateMeValidator };
+const unfollowValidator = validate(
+  checkSchema(
+    {
+      user_id_to_follow: {
+        notEmpty: { errorMessage: USERS_MESSAGES.USER_ID_TO_FOLLOW_IS_REQUIRED },
+        custom: {
+          options: async (value: string, { req }) => {
+            const user = await databaseService.users.findOne({ _id: new ObjectId(value) });
+            if (user === null) {
+              throw new ErrorWithStatus(USERS_MESSAGES.USER_TO_FOLLOW_NOT_FOUND, HTTP_STATUS.UNAUTHORIZED);
+            }
+            return true;
+          }
+        }
+      }
+    },
+    ['params']
+  )
+)
+
+
+
+export { resetPasswordValidator, loginValidator, registerValidator, accessTokenValidator, refreshTokenValidator, emailVerifyTokenValidator, emailValidator, forgotPasswordTokenValidator, updateMeValidator, unfollowValidator };

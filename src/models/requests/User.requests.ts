@@ -63,3 +63,7 @@ export interface GetProfileRequest {
 export interface FollowRequest {
   user_id_to_follow: string;
 }
+
+export interface UnfollowRequest {
+  user_id_to_follow: string;
+}

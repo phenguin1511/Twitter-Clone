@@ -1,6 +1,6 @@
 import express from 'express';
 const usersRouter = express.Router();
-import { emailVerifyTokenValidator, loginValidator, registerValidator, accessTokenValidator, refreshTokenValidator, emailValidator, forgotPasswordTokenValidator, resetPasswordValidator, verifiedUserValidator, updateMeValidator } from '../middlewares/users.midlewares.js';
+import { emailVerifyTokenValidator, loginValidator, registerValidator, accessTokenValidator, refreshTokenValidator, emailValidator, forgotPasswordTokenValidator, resetPasswordValidator, verifiedUserValidator, updateMeValidator, unfollowValidator } from '../middlewares/users.midlewares.js';
 import usersController from '../controllers/users.controllers.js';
 import wrapRequestHandler from '../utils/handlers.js';
 import { filterMiddleware } from '~/middlewares/common.middleware.js';
@@ -113,4 +113,18 @@ usersRouter.get('/:username', wrapRequestHandler(usersController.getProfileContr
  * Body: { user_id_to_follow: string  }
  */
 usersRouter.post('/follow', accessTokenValidator, verifiedUserValidator, wrapRequestHandler(usersController.followController));
+/**
+ * Description: Unfollow user
+ * Path: /follow/:user_id_to_follow
+ * Method: DELETE
+ * Headers: { Authorization: Bearer <access_token> }
+ * Params: { user_id_to_follow: string  }
+ */
+usersRouter.delete('/follow/:user_id_to_follow', accessTokenValidator, verifiedUserValidator, unfollowValidator, wrapRequestHandler(usersController.unfollowController));
+
+
+
+
+
+
 export default usersRouter;

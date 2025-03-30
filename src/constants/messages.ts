@@ -87,4 +87,8 @@ export const USERS_MESSAGES = {
       FOLLOW_SUCCESS: 'Follow successfully',
       USER_TO_FOLLOW_NOT_FOUND: 'User to follow not found',
       FOLLOW_ALREADY_EXIST: 'Follow already exist',
+      USER_ID_TO_FOLLOW_IS_REQUIRED: 'User id to follow is required',
+
+      UNFOLLOW_SUCCESS: 'Unfollow successfully',
+      FOLLOW_NOT_FOUND: 'Follow not found',
 };

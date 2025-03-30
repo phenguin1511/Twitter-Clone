@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import usersService from '~/services/users.services.js';
 import { ParamsDictionary } from 'express-serve-static-core';
-import { LogoutRequest, RegisterRequest, TokenPayload, LoginRequest, VerifyEmailRequest, ForgotPasswordRequest, VerifyForgotPasswordRequest, ResetPasswordRequest, UpdateMeRequest, GetProfileRequest, FollowRequest } from '~/models/requests/User.requests.js';
+import { LogoutRequest, RegisterRequest, TokenPayload, LoginRequest, VerifyEmailRequest, ForgotPasswordRequest, VerifyForgotPasswordRequest, ResetPasswordRequest, UpdateMeRequest, GetProfileRequest, FollowRequest, UnfollowRequest } from '~/models/requests/User.requests.js';
 import { USERS_MESSAGES } from '~/constants/messages.js';
 import databaseService from '~/services/database.services.js';
 import { ObjectId } from 'mongodb';
@@ -152,6 +152,21 @@ class UsersController {
     }
     return res.status(200).json({
       message: USERS_MESSAGES.FOLLOW_SUCCESS,
+      result
+    });
+  }
+
+  unfollowController = async (req: Request<ParamsDictionary, any, UnfollowRequest>, res: Response) => {
+    const { user_id } = req.decoded_authorization as TokenPayload;
+    const { user_id_to_follow } = req.params;
+    const result = await usersService.unfollow(user_id, user_id_to_follow);
+    if (result.errCode === 1) {
+      return res.status(400).json({
+        message: result.message
+      });
+    }
+    return res.status(200).json({
+      message: USERS_MESSAGES.UNFOLLOW_SUCCESS,
       result
     });
   }

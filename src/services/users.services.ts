@@ -343,6 +343,22 @@ class UsersService {
       errCode: 0
     };
   }
+
+  async unfollow(user_id: string, user_id_to_follow: string) {
+    const follower = await databaseService.followers.findOne({ user_id: new ObjectId(user_id), user_id_to_follow: new ObjectId(user_id_to_follow) });
+    if (!follower) {
+      return {
+        message: USERS_MESSAGES.FOLLOW_NOT_FOUND,
+        errCode: 1
+      };
+    }
+    await databaseService.followers.deleteOne({ user_id: new ObjectId(user_id), user_id_to_follow: new ObjectId(user_id_to_follow) });
+    return {
+      message: USERS_MESSAGES.UNFOLLOW_SUCCESS,
+      errCode: 0
+    };
+
+  }
 }
 const usersService = new UsersService();
 export default usersService;
