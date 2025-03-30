@@ -96,4 +96,21 @@ usersRouter.patch('/me',
       updateMeValidator,
       filterMiddleware<UpdateMeRequest>(['name', 'date_of_birth', 'bio', 'location', 'website', 'username', 'avatar', 'cover_photo']),
       wrapRequestHandler(usersController.updateMeController));
+
+/**
+ * Description: Get user by username
+ * Path: /:username
+ * Method: GET
+ * Params: { username: string }
+ */
+usersRouter.get('/:username', wrapRequestHandler(usersController.getProfileController));
+
+/**
+ * Description: Follow user
+ * Path: /follow
+ * Method: POST
+ * Headers: { Authorization: Bearer <access_token> }
+ * Body: { user_id_to_follow: string  }
+ */
+usersRouter.post('/follow', accessTokenValidator, verifiedUserValidator, wrapRequestHandler(usersController.followController));
 export default usersRouter;

@@ -9,6 +9,7 @@ import RefreshToken from '~/models/schemas/RefreshToken.schema.js';
 import { ObjectId } from 'mongodb';
 import dotenv from 'dotenv';
 import { USERS_MESSAGES } from '~/constants/messages.js';
+import Follower from '~/models/schemas/Follower.schema.js';
 dotenv.config();
 class UsersService {
   private signAccessToken({ user_id, verify }: { user_id: string, verify: UserVerifyStatus }) {
@@ -277,14 +278,71 @@ class UsersService {
         }
       }
     ])
-    const user_updated = await databaseService.users.findOne({ _id: new ObjectId(user_id) });
+    const user_updated = await databaseService.users.findOne({ _id: new ObjectId(user_id) }, {
+      projection: {
+        password: 0,
+        email_verify_token: 0,
+        forgot_password_token: 0,
+      }
+    });
     return {
       message: USERS_MESSAGES.UPDATE_ME_SUCCESS,
       errCode: 0,
       data: user_updated
     };
   }
-}
 
+  async getProfile(username: string) {
+    const user = await databaseService.users.findOne({ username },
+      {
+        projection: {
+          password: 0,
+          email_verify_token: 0,
+          forgot_password_token: 0,
+        }
+      }
+    );
+    if (!user) {
+      return {
+        message: USERS_MESSAGES.USER_NOT_FOUND,
+        errCode: 1
+      };
+    }
+    return {
+      message: USERS_MESSAGES.GET_PROFILE_SUCCESS,
+      errCode: 0,
+      data: user
+    };
+  }
+
+  async follow(user_id: string, user_id_to_follow: string) {
+    const user = await databaseService.users.findOne({ _id: new ObjectId(user_id_to_follow) });
+    if (!user) {
+      return {
+        message: USERS_MESSAGES.USER_TO_FOLLOW_NOT_FOUND,
+        errCode: 1
+      };
+    }
+    const follower = await databaseService.followers.findOne({ user_id: new ObjectId(user_id), user_id_to_follow: new ObjectId(user_id_to_follow) });
+    if (follower) {
+      return {
+        message: USERS_MESSAGES.FOLLOW_ALREADY_EXIST,
+        errCode: 1
+      };
+    } else {
+      await databaseService.followers.insertOne(
+        new Follower({
+          user_id: new ObjectId(user_id),
+          user_id_to_follow: new ObjectId(user_id_to_follow),
+          createdAt: new Date()
+        })
+      );
+    }
+    return {
+      message: USERS_MESSAGES.FOLLOW_SUCCESS,
+      errCode: 0
+    };
+  }
+}
 const usersService = new UsersService();
 export default usersService;

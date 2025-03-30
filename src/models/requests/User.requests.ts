@@ -56,3 +56,10 @@ export interface UpdateMeRequest {
   cover_photo?: string;
 }
 
+export interface GetProfileRequest {
+  username: string;
+}
+
+export interface FollowRequest {
+  user_id_to_follow: string;
+}

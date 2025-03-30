@@ -81,4 +81,10 @@ export const USERS_MESSAGES = {
 
       COVER_PHOTO_MUST_BE_STRING: 'Cover photo must be a string',
       COVER_PHOTO_MUST_BE_FROM_1_TO_200_CHARACTERS: 'Cover photo must be from 1 to 200 characters',
+
+      GET_PROFILE_SUCCESS: 'Get profile successfully',
+
+      FOLLOW_SUCCESS: 'Follow successfully',
+      USER_TO_FOLLOW_NOT_FOUND: 'User to follow not found',
+      FOLLOW_ALREADY_EXIST: 'Follow already exist',
 };

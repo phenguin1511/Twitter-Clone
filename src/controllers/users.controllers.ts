@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import usersService from '~/services/users.services.js';
 import { ParamsDictionary } from 'express-serve-static-core';
-import { LogoutRequest, RegisterRequest, TokenPayload, LoginRequest, VerifyEmailRequest, ForgotPasswordRequest, VerifyForgotPasswordRequest, ResetPasswordRequest, UpdateMeRequest } from '~/models/requests/User.requests.js';
+import { LogoutRequest, RegisterRequest, TokenPayload, LoginRequest, VerifyEmailRequest, ForgotPasswordRequest, VerifyForgotPasswordRequest, ResetPasswordRequest, UpdateMeRequest, GetProfileRequest, FollowRequest } from '~/models/requests/User.requests.js';
 import { USERS_MESSAGES } from '~/constants/messages.js';
 import databaseService from '~/services/database.services.js';
 import { ObjectId } from 'mongodb';
@@ -125,8 +125,37 @@ class UsersController {
       result
     });
   }
-}
 
+  getProfileController = async (req: Request<ParamsDictionary, any, GetProfileRequest>, res: Response) => {
+    console.log(req.params);
+    const { username } = req.params;
+    const user = await usersService.getProfile(username);
+    if (user.errCode === 1) {
+      return res.status(400).json({
+        message: user.message
+      });
+    }
+    return res.status(200).json({
+      message: USERS_MESSAGES.GET_PROFILE_SUCCESS,
+      user: user.data
+    });
+  }
+
+  followController = async (req: Request<ParamsDictionary, any, FollowRequest>, res: Response) => {
+    const { user_id } = req.decoded_authorization as TokenPayload;
+    const { user_id_to_follow } = req.body;
+    const result = await usersService.follow(user_id, user_id_to_follow);
+    if (result.errCode === 1) {
+      return res.status(400).json({
+        message: result.message
+      });
+    }
+    return res.status(200).json({
+      message: USERS_MESSAGES.FOLLOW_SUCCESS,
+      result
+    });
+  }
+}
 
 const usersController = new UsersController();
 export default usersController;
