@@ -67,3 +67,9 @@ export interface FollowRequest {
 export interface UnfollowRequest {
   user_id_to_follow: string;
 }
+
+export interface ChangePasswordRequest {
+  old_password: string;
+  new_password: string;
+  confirm_new_password: string;
+}

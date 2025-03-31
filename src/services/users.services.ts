@@ -1,6 +1,6 @@
 import User from '~/models/schemas/User.schema.js';
 import databaseService from '~/services/database.services.js';
-import { RegisterRequest, LogoutRequest, ResetPasswordRequest, UpdateMeRequest } from '~/models/requests/User.requests.js';
+import { RegisterRequest, LogoutRequest, ResetPasswordRequest, UpdateMeRequest, ChangePasswordRequest } from '~/models/requests/User.requests.js';
 import hashPassword from '~/utils/crypto.js';
 import { signToken } from '~/utils/jwt.js';
 import { TokenType, UserVerifyStatus } from '~/constants/enum.js';
@@ -359,6 +359,22 @@ class UsersService {
     };
 
   }
+
+  async changePassword(user_id: string, body: ChangePasswordRequest) {
+    await databaseService.users.updateOne({ _id: new ObjectId(user_id) }, [
+      {
+        $set: {
+          password: hashPassword(body.new_password),
+          updatedAt: "$$NOW"
+        }
+      }
+    ])
+    return {
+      message: USERS_MESSAGES.CHANGE_PASSWORD_SUCCESS,
+      errCode: 0
+    };
+  }
 }
+
 const usersService = new UsersService();
 export default usersService;

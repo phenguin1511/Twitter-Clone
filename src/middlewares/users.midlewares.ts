@@ -13,6 +13,7 @@ import { Collection, ObjectId } from 'mongodb';
 import User from '~/models/schemas/User.schema.js';
 import { UserVerifyStatus } from '~/constants/enum.js';
 import { TokenPayload } from '~/models/requests/User.requests.js';
+import { REGEX_USERNAME } from '~/utils/regex.js';
 
 
 
@@ -388,7 +389,19 @@ const updateMeValidator = validate(
         optional: true,
         isString: { errorMessage: USERS_MESSAGES.USERNAME_MUST_BE_STRING },
         isLength: { options: { min: 1, max: 50 }, errorMessage: USERS_MESSAGES.USERNAME_MUST_BE_FROM_1_TO_50_CHARACTERS },
-        trim: true
+        trim: true,
+        custom: {
+          options: async (value: string) => {
+            if (REGEX_USERNAME.test(value)) {
+              throw new Error(USERS_MESSAGES.USERNAME_INVALID);
+            }
+            const user = await databaseService.users.findOne({ username: value });
+            if (user !== null) {
+              throw new Error(USERS_MESSAGES.USERNAME_ALREADY_EXISTS);
+            }
+            return true;
+          }
+        }
       },
       avatar: {
         optional: true,
@@ -427,6 +440,50 @@ const unfollowValidator = validate(
   )
 )
 
+const changePasswordValidator = validate(
+  checkSchema(
+    {
+      old_password: {
+        notEmpty: { errorMessage: USERS_MESSAGES.OLD_PASSWORD_IS_REQUIRED },
+        isLength: { options: { min: 8, max: 50 }, errorMessage: USERS_MESSAGES.PASSWORD_MUST_BE_FROM_8_TO_50_CHARACTERS },
+        isStrongPassword: { options: { minLength: 8, minLowercase: 1, minUppercase: 1 }, errorMessage: USERS_MESSAGES.PASSWORD_MUST_BE_STRONG },
+        custom: {
+          options: async (value: string, { req }) => {
+            const { user_id } = (req as Request).decoded_authorization as TokenPayload;
+            const user = await databaseService.users.findOne({ _id: new ObjectId(user_id) });
+            if (user === null) {
+              throw new ErrorWithStatus(USERS_MESSAGES.USER_NOT_FOUND, HTTP_STATUS.UNAUTHORIZED);
+            }
+            if (user.password !== hashPassword(value)) {
+              throw new Error(USERS_MESSAGES.PASSWORD_INCORRECT);
+            }
+            (req as Request).user = user;
+            return true;
+          }
+        }
+      },
+      new_password: {
+        notEmpty: { errorMessage: USERS_MESSAGES.NEW_PASSWORD_IS_REQUIRED },
+        isLength: { options: { min: 8, max: 50 }, errorMessage: USERS_MESSAGES.PASSWORD_MUST_BE_FROM_8_TO_50_CHARACTERS },
+        isStrongPassword: { options: { minLength: 8, minLowercase: 1, minUppercase: 1 }, errorMessage: USERS_MESSAGES.PASSWORD_MUST_BE_STRONG },
+      },
+      confirm_new_password: {
+        notEmpty: { errorMessage: USERS_MESSAGES.CONFIRM_NEW_PASSWORD_IS_REQUIRED },
+        isLength: { options: { min: 8, max: 50 }, errorMessage: USERS_MESSAGES.PASSWORD_MUST_BE_FROM_8_TO_50_CHARACTERS },
+        isStrongPassword: { options: { minLength: 8, minLowercase: 1, minUppercase: 1 }, errorMessage: USERS_MESSAGES.PASSWORD_MUST_BE_STRONG },
+        custom: {
+          options: (value, { req }) => {
+            if (value !== req.body.new_password) {
+              throw new Error(USERS_MESSAGES.CONFIRM_PASSWORD_DO_NOT_MATCH);
+            }
+            return true;
+          }
+        }
+      }
+    },
+    ['body']
+  )
+)
 
 
-export { resetPasswordValidator, loginValidator, registerValidator, accessTokenValidator, refreshTokenValidator, emailVerifyTokenValidator, emailValidator, forgotPasswordTokenValidator, updateMeValidator, unfollowValidator };
+export { resetPasswordValidator, loginValidator, registerValidator, accessTokenValidator, refreshTokenValidator, emailVerifyTokenValidator, emailValidator, forgotPasswordTokenValidator, updateMeValidator, unfollowValidator, changePasswordValidator };

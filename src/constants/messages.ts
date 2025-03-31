@@ -90,5 +90,13 @@ export const USERS_MESSAGES = {
       USER_ID_TO_FOLLOW_IS_REQUIRED: 'User id to follow is required',
 
       UNFOLLOW_SUCCESS: 'Unfollow successfully',
-      FOLLOW_NOT_FOUND: 'Follow not found',
+      FOLLOW_NOT_FOUND: 'Follow not found or not follow',
+
+      USERNAME_ALREADY_EXISTS: 'Username already exists',
+      USERNAME_INVALID: 'Username must be 4-15 characters, not only numbers, and no consecutive underscores',
+
+      OLD_PASSWORD_IS_REQUIRED: 'Old password is required',
+      NEW_PASSWORD_IS_REQUIRED: 'New password is required',
+      CONFIRM_NEW_PASSWORD_IS_REQUIRED: 'Confirm new password is required',
+      CHANGE_PASSWORD_SUCCESS: 'Change password successfully',
 };

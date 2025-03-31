@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import usersService from '~/services/users.services.js';
 import { ParamsDictionary } from 'express-serve-static-core';
-import { LogoutRequest, RegisterRequest, TokenPayload, LoginRequest, VerifyEmailRequest, ForgotPasswordRequest, VerifyForgotPasswordRequest, ResetPasswordRequest, UpdateMeRequest, GetProfileRequest, FollowRequest, UnfollowRequest } from '~/models/requests/User.requests.js';
+import { LogoutRequest, RegisterRequest, TokenPayload, LoginRequest, VerifyEmailRequest, ForgotPasswordRequest, VerifyForgotPasswordRequest, ResetPasswordRequest, UpdateMeRequest, GetProfileRequest, FollowRequest, UnfollowRequest, ChangePasswordRequest } from '~/models/requests/User.requests.js';
 import { USERS_MESSAGES } from '~/constants/messages.js';
 import databaseService from '~/services/database.services.js';
 import { ObjectId } from 'mongodb';
@@ -167,6 +167,16 @@ class UsersController {
     }
     return res.status(200).json({
       message: USERS_MESSAGES.UNFOLLOW_SUCCESS,
+      result
+    });
+  }
+
+  changePasswordController = async (req: Request<ParamsDictionary, any, ChangePasswordRequest>, res: Response) => {
+    const user = req.user as User;
+    const user_id = user._id as ObjectId;
+    const result = await usersService.changePassword(user_id.toString(), req.body);
+    return res.status(200).json({
+      message: USERS_MESSAGES.CHANGE_PASSWORD_SUCCESS,
       result
     });
   }
