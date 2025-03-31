@@ -147,13 +147,10 @@ class UsersService {
   }
 
   async verifyEmail(user_id: string) {
-    const user = await databaseService.users.findOne({ _id: new ObjectId(user_id) });
-    if (!user) {
-      return {
-        message: USERS_MESSAGES.USER_NOT_FOUND,
-        errCode: 1
-      };
-    }
+    const [accessToken, refreshToken] = await Promise.all([
+      this.signAccessToken({ user_id, verify: UserVerifyStatus.Verified }),
+      this.signRefreshToken({ user_id, verify: UserVerifyStatus.Verified })
+    ])
     await databaseService.users.updateOne({ _id: new ObjectId(user_id) }, [
       {
         $set: {
@@ -163,10 +160,17 @@ class UsersService {
         }
       }
     ])
-
+    await databaseService.refreshTokens.insertOne(
+      new RefreshToken({
+        user_id: new ObjectId(user_id),
+        token: refreshToken
+      })
+    );
     return {
       message: USERS_MESSAGES.VERIFY_EMAIL_SUCCESS,
       errCode: 0,
+      accessToken,
+      refreshToken
     };
   }
 
