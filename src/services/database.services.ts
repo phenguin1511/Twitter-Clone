@@ -9,33 +9,33 @@ const uri = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}
 const client = new MongoClient(uri);
 
 class DatabaseService {
-  private client: MongoClient;
-  private db: Db;
+      private client: MongoClient;
+      private db: Db;
 
-  constructor() {
-    this.client = new MongoClient(uri);
-    this.db = this.client.db(process.env.DB_NAME);
-  }
+      constructor() {
+            this.client = new MongoClient(uri);
+            this.db = this.client.db(process.env.DB_NAME);
+      }
 
-  async connect() {
-    try {
-      await this.client.connect();
-    } catch (err) {
-      console.error('Connection failed', err);
-    }
-  }
+      async connect() {
+            try {
+                  await this.client.connect();
+            } catch (err) {
+                  console.error('Connection failed', err);
+            }
+      }
 
-  get users(): Collection<User> {
-    return this.db.collection(process.env.DB_COLLLECTION_USERS as string);
-  }
+      get users(): Collection<User> {
+            return this.db.collection(process.env.DB_COLLLECTION_USERS as string);
+      }
 
-  get refreshTokens(): Collection<RefreshToken> {
-    return this.db.collection(process.env.DB_COLLLECTION_REFRESH_TOKENS as string);
-  }
+      get refreshTokens(): Collection<RefreshToken> {
+            return this.db.collection(process.env.DB_COLLLECTION_REFRESH_TOKENS as string);
+      }
 
-  get followers(): Collection<Follower> {
-    return this.db.collection(process.env.DB_COLLLECTION_FOLLOWERS as string);
-  }
+      get followers(): Collection<Follower> {
+            return this.db.collection(process.env.DB_COLLLECTION_FOLLOWERS as string);
+      }
 
 
 }

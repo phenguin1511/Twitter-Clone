@@ -13,6 +13,7 @@ import Follower from '~/models/schemas/Follower.schema.js';
 import axios from 'axios';
 import { ErrorWithStatus } from '~/models/Errors.js';
 import HTTP_STATUS from '~/constants/httpStatus.js';
+import { verify } from 'crypto';
 dotenv.config();
 
 class UsersService {
@@ -199,6 +200,7 @@ class UsersService {
         this.signAccessToken({ user_id: user._id.toString(), verify: UserVerifyStatus.Verified }),
         this.signRefreshToken({ user_id: user._id.toString(), verify: UserVerifyStatus.Verified })
       ]);
+      console.log(user)
       await databaseService.users.updateOne({ _id: user._id }, [
         {
           $set: {
@@ -219,7 +221,7 @@ class UsersService {
         accessToken,
         refreshToken,
         newUser: 0,
-        verigy: user.verify
+        verify: user.verify as number,
       };
     } else {
       const randomPassword = Math.random().toString(36).substring(2, 15);
