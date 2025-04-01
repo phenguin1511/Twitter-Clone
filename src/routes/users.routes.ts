@@ -14,6 +14,14 @@ import { UpdateMeRequest } from '~/models/requests/User.requests.js';
 usersRouter.post('/login', loginValidator, wrapRequestHandler(usersController.loginController));
 
 /**
+ * Description: Google OAuth
+ * Path: /users/oauth/google
+ * Method: GET
+ * Params: { code: string }
+ */
+usersRouter.get('/oauth/google', wrapRequestHandler(usersController.googleOAuthController));
+
+/**
  * Description: Register
  * Path: /users/register
  * Method: POST

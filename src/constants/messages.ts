@@ -99,4 +99,7 @@ export const USERS_MESSAGES = {
       NEW_PASSWORD_IS_REQUIRED: 'New password is required',
       CONFIRM_NEW_PASSWORD_IS_REQUIRED: 'Confirm new password is required',
       CHANGE_PASSWORD_SUCCESS: 'Change password successfully',
+
+      GOOGLE_ACCOUNT_NOT_VERIFIED: 'Google account not verified',
+      GOOGLE_LOGIN_SUCCESS: 'Google login successfully',
 };

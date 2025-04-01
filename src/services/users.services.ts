@@ -10,7 +10,11 @@ import { ObjectId } from 'mongodb';
 import dotenv from 'dotenv';
 import { USERS_MESSAGES } from '~/constants/messages.js';
 import Follower from '~/models/schemas/Follower.schema.js';
+import axios from 'axios';
+import { ErrorWithStatus } from '~/models/Errors.js';
+import HTTP_STATUS from '~/constants/httpStatus.js';
 dotenv.config();
+
 class UsersService {
   private signAccessToken({ user_id, verify }: { user_id: string, verify: UserVerifyStatus }) {
     return signToken({
@@ -144,6 +148,99 @@ class UsersService {
       message: USERS_MESSAGES.LOGOUT_SUCCESS,
       errCode: 0
     };
+  }
+
+  private async getGoogleOAuthToken(code: string) {
+    const body = {
+      code,
+      client_id: process.env.GOOGLE_CLIENT_ID,
+      client_secret: process.env.GOOGLE_CLIENT_SECRET,
+      redirect_uri: process.env.GOOGLE_REDIRECT_URI,
+      grant_type: "authorization_code"
+    }
+    const { data } = await axios.post('https://oauth2.googleapis.com/token', body, {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      }
+    });
+    return data as {
+      access_token: string,
+      id_token: string
+    };
+  }
+
+  private async getGoogleUserInfo(access_token: string, id_token: string) {
+    const { data } = await axios.get('https://www.googleapis.com/oauth2/v2/userinfo', {
+      params: {
+        access_token,
+        alt: 'json'
+      },
+      headers: {
+        'Authorization': `Bearer ${id_token}`
+      }
+    });
+    return data as {
+      id: string,
+      email: string,
+      verified_email: boolean,
+      name: string,
+    };
+  }
+
+  async googleOAuth(code: string) {
+    const { access_token, id_token } = await this.getGoogleOAuthToken(code);
+    const userInfo = await this.getGoogleUserInfo(access_token, id_token);
+    if (!userInfo.verified_email) {
+      throw new ErrorWithStatus(USERS_MESSAGES.GOOGLE_ACCOUNT_NOT_VERIFIED, HTTP_STATUS.BAD_REQUEST);
+    }
+    const user = await databaseService.users.findOne({ email: userInfo.email });
+    if (user) {
+      const [accessToken, refreshToken] = await Promise.all([
+        this.signAccessToken({ user_id: user._id.toString(), verify: UserVerifyStatus.Verified }),
+        this.signRefreshToken({ user_id: user._id.toString(), verify: UserVerifyStatus.Verified })
+      ]);
+      await databaseService.users.updateOne({ _id: user._id }, [
+        {
+          $set: {
+            verify: UserVerifyStatus.Verified,
+            name: userInfo.name,
+          }
+        }
+      ]);
+      await databaseService.refreshTokens.insertOne(
+        new RefreshToken({
+          user_id: new ObjectId(user._id.toString()),
+          token: refreshToken
+        })
+      );
+      return {
+        message: USERS_MESSAGES.GOOGLE_LOGIN_SUCCESS,
+        errCode: 0,
+        accessToken,
+        refreshToken,
+        newUser: 0,
+        verigy: user.verify
+      };
+    } else {
+      const randomPassword = Math.random().toString(36).substring(2, 15);
+      const result = await this.registerUser({
+        email: userInfo.email,
+        name: userInfo.name,
+        date_of_birth: new Date().toISOString(),
+        password: randomPassword,
+        confirmPassword: randomPassword,
+      });
+      if (result.errCode !== 0) {
+        return result;
+      }
+      return {
+        ...result,
+        message: USERS_MESSAGES.GOOGLE_LOGIN_SUCCESS,
+        errCode: 0,
+        newUser: 1,
+        verify: UserVerifyStatus.Unverified
+      };
+    }
   }
 
   async verifyEmail(user_id: string) {

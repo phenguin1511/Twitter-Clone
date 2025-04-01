@@ -2,6 +2,7 @@ import { JwtPayload } from 'jsonwebtoken';
 import { Request } from 'express';
 import { ObjectId } from 'mongodb';
 import { TokenType, UserVerifyStatus } from '~/constants/enum.js';
+import User from '../schemas/User.schema.js';
 
 export interface RegisterRequest {
   name: string;
@@ -72,4 +73,13 @@ export interface ChangePasswordRequest {
   old_password: string;
   new_password: string;
   confirm_new_password: string;
+}
+
+export interface GoogleOAuthResponse {
+  message: string;
+  errCode: number;
+  accessToken: string;
+  refreshToken: string;
+  newUser: number;
+  verify: UserVerifyStatus
 }

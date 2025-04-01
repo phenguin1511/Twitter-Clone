@@ -1,13 +1,15 @@
 import { Request, Response } from 'express';
 import usersService from '~/services/users.services.js';
 import { ParamsDictionary } from 'express-serve-static-core';
-import { LogoutRequest, RegisterRequest, TokenPayload, LoginRequest, VerifyEmailRequest, ForgotPasswordRequest, VerifyForgotPasswordRequest, ResetPasswordRequest, UpdateMeRequest, GetProfileRequest, FollowRequest, UnfollowRequest, ChangePasswordRequest } from '~/models/requests/User.requests.js';
+import { LogoutRequest, RegisterRequest, TokenPayload, LoginRequest, VerifyEmailRequest, ForgotPasswordRequest, VerifyForgotPasswordRequest, ResetPasswordRequest, UpdateMeRequest, GetProfileRequest, FollowRequest, UnfollowRequest, ChangePasswordRequest, GoogleOAuthResponse } from '~/models/requests/User.requests.js';
 import { USERS_MESSAGES } from '~/constants/messages.js';
 import databaseService from '~/services/database.services.js';
 import { ObjectId } from 'mongodb';
 import { UserVerifyStatus } from '~/constants/enum.js';
 import User from '~/models/schemas/User.schema.js';
 import _ from 'lodash';
+import dotenv from 'dotenv';
+dotenv.config();
 class UsersController {
   loginController = async (req: Request<ParamsDictionary, any, LoginRequest>, res: Response) => {
     const user = req.user as User;
@@ -19,6 +21,13 @@ class UsersController {
     });
   };
 
+  googleOAuthController = async (req: Request, res: Response) => {
+    const { code } = req.query;
+    const result = await usersService.googleOAuth(code as string) as GoogleOAuthResponse;
+    const urlRedirect = `${process.env.CLIENT_REDIRECT_CALLBACK}?accessToken=${result.accessToken}&refreshToken=${result.refreshToken}&newUser=${result.newUser}&verify=${result.verify}`;
+    return res.redirect(urlRedirect);
+
+  }
   registerController = async (req: Request<ParamsDictionary, any, RegisterRequest>, res: Response) => {
     const result = await usersService.registerUser(req.body);
     return res.status(200).json({
