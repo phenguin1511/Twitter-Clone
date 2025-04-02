@@ -7,6 +7,7 @@ import defaultErrorHandler from './middlewares/error.middlewares.js';
 import mediasRouter from './routes/medias.routes.js';
 import { initFolder } from './utils/file.js';
 
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
