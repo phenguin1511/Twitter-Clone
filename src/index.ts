@@ -4,13 +4,16 @@ import usersRouter from './routes/users.routes.js';
 import bodyParser from 'body-parser';
 import databaseService from './services/database.services.js';
 import defaultErrorHandler from './middlewares/error.middlewares.js';
+import mediasRouter from './routes/medias.routes.js';
+import { initFolder } from './utils/file.js';
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.get('/', (req, res) => {
-  res.send('Hello World!');
-});
+initFolder();
+
 app.use('/users', usersRouter);
+app.use('/medias', mediasRouter);
 
 app.use(defaultErrorHandler);
 

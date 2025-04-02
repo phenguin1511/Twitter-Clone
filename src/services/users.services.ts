@@ -13,7 +13,6 @@ import Follower from '~/models/schemas/Follower.schema.js';
 import axios from 'axios';
 import { ErrorWithStatus } from '~/models/Errors.js';
 import HTTP_STATUS from '~/constants/httpStatus.js';
-import { verify } from 'crypto';
 dotenv.config();
 
 class UsersService {
