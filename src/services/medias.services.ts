@@ -18,7 +18,7 @@ class MediaService {
             const imageBuffer = await fs.promises.readFile(data.filepath);
             await sharp(imageBuffer).jpeg().toFile(newFilePath);
             await fs.promises.unlink(data.filepath);
-            return isProduction ? `${process.env.HOST}/uploads/${newFileName}.jpg` : `http://localhost:${process.env.PORT}/uploads/${newFileName}.jpg`;
+            return isProduction ? `${process.env.HOST}/static/${newFileName}.jpg` : `http://localhost:${process.env.PORT}/static/${newFileName}.jpg`;
 
       }
 }

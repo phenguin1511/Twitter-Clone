@@ -6,7 +6,7 @@ import databaseService from './services/database.services.js';
 import defaultErrorHandler from './middlewares/error.middlewares.js';
 import mediasRouter from './routes/medias.routes.js';
 import { initFolder } from './utils/file.js';
-
+import { UPLOAD_DIR } from './constants/dir.js';
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -15,7 +15,7 @@ initFolder();
 
 app.use('/users', usersRouter);
 app.use('/medias', mediasRouter);
-
+app.use('/static', express.static(UPLOAD_DIR));
 app.use(defaultErrorHandler);
 
 databaseService.connect().then(() => {

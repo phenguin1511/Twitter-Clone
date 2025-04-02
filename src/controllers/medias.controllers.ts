@@ -4,10 +4,10 @@ import mediaService from '~/services/medias.services.js';
 
 class MediaController {
       uploadSingleImage = async (req: Request, res: Response, next: NextFunction) => {
-            const data = await mediaService.hanldeUploadSingleImage(req);
+            const url = await mediaService.hanldeUploadSingleImage(req);
             return res.status(200).json({
                   message: 'Upload image successfully',
-                  data
+                  url
             });
       }
 }
