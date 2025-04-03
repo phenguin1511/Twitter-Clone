@@ -103,4 +103,6 @@ export const USERS_MESSAGES = {
       GOOGLE_ACCOUNT_NOT_VERIFIED: 'Google account not verified',
       GOOGLE_LOGIN_SUCCESS: 'Google login successfully',
 
+      REFRESH_TOKEN_NOT_FOUND: 'Refresh token not found',
+      REFRESH_TOKEN_SUCCESS: 'Refresh token successfully',
 };

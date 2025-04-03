@@ -42,6 +42,19 @@ usersRouter.post(
       refreshTokenValidator,
       wrapRequestHandler(usersController.logoutController)
 );
+/**
+ * Description: Refresh token  
+ * Path: /users/refresh-token
+ * Method: POST
+ * Headers: { Authorization: Bearer <refresh_token> }
+ * Body: { refresh_token: string }
+ */
+usersRouter.post(
+      '/refresh-token',
+      refreshTokenValidator,
+      wrapRequestHandler(usersController.refreshTokenController)
+);
+
 
 /**
  * Description: Verify email

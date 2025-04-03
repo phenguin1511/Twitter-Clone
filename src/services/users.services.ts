@@ -112,6 +112,27 @@ class UsersService {
     }
   }
 
+  async refreshToken({ user_id, verify, refreshToken }: { user_id: string, verify: UserVerifyStatus, refreshToken: string }) {
+    if (!refreshToken) {
+      return {
+        message: USERS_MESSAGES.REFRESH_TOKEN_NOT_FOUND,
+        errCode: 1
+      };
+    }
+    const [accessToken, newRefreshToken] = await Promise.all([
+      this.signAccessToken({ user_id, verify }),
+      this.signRefreshToken({ user_id, verify }),
+      databaseService.refreshTokens.deleteOne({ token: refreshToken })
+    ]);
+    await databaseService.refreshTokens.insertOne(
+      new RefreshToken({
+        user_id: new ObjectId(user_id),
+        token: newRefreshToken
+      })
+    );
+    return { accessToken, refreshToken: newRefreshToken };
+  }
+
   async checkEmailExist(email: string) {
     const user = await databaseService.users.findOne({ email });
     return Boolean(user);

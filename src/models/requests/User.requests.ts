@@ -83,3 +83,7 @@ export interface GoogleOAuthResponse {
   newUser: number;
   verify: UserVerifyStatus
 }
+
+export interface RefreshTokenRequest {
+  refreshToken: string;
+}
