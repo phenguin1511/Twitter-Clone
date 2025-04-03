@@ -3,7 +3,8 @@ import path from 'path';
 import { UPLOAD_IMAGE_DIR, UPLOAD_VIDEO_DIR } from '~/constants/dir.js';
 import fs from 'fs';
 import mediaService from '~/services/medias.services.js';
-
+import HTTP_STATUS from '~/constants/httpStatus.js';
+import mime from 'mime';
 class MediaController {
       uploadImageController = async (req: Request, res: Response, next: NextFunction) => {
             const url = await mediaService.hanldeUploadImage(req);
@@ -42,6 +43,31 @@ class MediaController {
             }
             res.status(200).sendFile(filePath);
       }
+
+      serveVideoStreamController = async (req: Request, res: Response) => {
+            const range = req.headers.range;
+            if (!range) {
+                  return res.status(HTTP_STATUS.BAD_REQUEST).send('Requires Range Header')
+            }
+            const { filename } = req.params;
+            const videoPath = path.resolve(UPLOAD_VIDEO_DIR, filename);
+            const videoSize = fs.statSync(videoPath).size;
+            const CHUNK_SIZE = 10 ** 6;
+            const start = Number(range.replace(/\D/g, ''));
+            const end = Math.min(start + CHUNK_SIZE, videoSize - 1);
+            const contentLength = end - start + 1;
+            const contentType = mime.getType(videoPath) || 'video/*';
+            const headers = {
+                  'Content-Range': `bytes ${start}-${end}/${videoSize}`,
+                  'Accept-Ranges': 'bytes',
+                  'Content-Length': contentLength,
+                  'Content-Type': contentType
+            }
+            res.writeHead(HTTP_STATUS.PARTIAL_CONTENT, headers);
+            const videoStream = fs.createReadStream(videoPath, { start, end });
+            videoStream.pipe(res);
+      }
+
 }
 
 const mediaController = new MediaController();

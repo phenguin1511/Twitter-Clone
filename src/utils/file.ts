@@ -38,7 +38,6 @@ export const hanldeUploadImageService = async (req: Request) => {
       return new Promise<File[]>((resolve, reject) => {
             form.parse(req, (err, fields, files) => {
                   if (err) {
-
                         return reject(err);
                   }
                   if (!Boolean(files.image)) {
@@ -63,7 +62,7 @@ export const hanldeUploadVideoService = async (req: Request) => {
             maxFileSize: 50 * 1024 * 1024,
             maxTotalFileSize: 50 * 1024 * 1024 * 4,
             filter: function ({ name, originalFilename, mimetype }) {
-                  const valid = name === 'video' && Boolean(mimetype?.includes('video'));
+                  const valid = name === 'video' && Boolean(mimetype?.includes('video')) || Boolean(mimetype?.includes('quicktime'));
                   if (!valid) {
                         form.emit('error' as any, new Error('Invalid video') as any);
                   }
