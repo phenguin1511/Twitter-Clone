@@ -4,7 +4,7 @@ import wrapRequestHandler from '../utils/handlers.js';
 
 const mediasRouter = Router();
 
-mediasRouter.post('/upload-image', wrapRequestHandler(mediaController.uploadSingleImage));
+mediasRouter.post('/upload-image', wrapRequestHandler(mediaController.uploadImageController));
 
 export default mediasRouter;
 

@@ -12,11 +12,12 @@ export const initFolder = () => {
 };
 
 
-export const hanldeUploadSingleImageService = async (req: Request) => {
+export const hanldeUploadImageService = async (req: Request) => {
       const form = formidable({
             uploadDir: TEMP_DIR,
-            maxFiles: 1,
+            maxFiles: 4,
             maxFileSize: 3000 * 1024,
+            maxTotalFileSize: 3000 * 1024 * 4,
             filter: function ({ name, originalFilename, mimetype }) {
                   const valid = name === 'image' && Boolean(mimetype?.includes('image'));
                   if (!valid) {
@@ -25,7 +26,7 @@ export const hanldeUploadSingleImageService = async (req: Request) => {
                   return valid;
             }
       });
-      return new Promise<File>((resolve, reject) => {
+      return new Promise<File[]>((resolve, reject) => {
             form.parse(req, (err, fields, files) => {
                   if (err) {
 
@@ -34,7 +35,7 @@ export const hanldeUploadSingleImageService = async (req: Request) => {
                   if (!Boolean(files.image)) {
                         return reject(new Error('No image uploaded'));
                   }
-                  resolve((files.image as File[])[0]);
+                  resolve(files.image as File[]);
             });
       });
 };

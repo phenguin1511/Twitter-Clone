@@ -11,4 +11,10 @@ enum TokenType {
   EmailVerifyToken
 }
 
-export { UserVerifyStatus, TokenType };
+
+enum MediaType {
+  Image,
+  Video
+}
+
+export { UserVerifyStatus, TokenType, MediaType };
