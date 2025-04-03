@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import path from 'path';
-import { UPLOAD_IMAGE_DIR } from '~/constants/dir.js';
+import { UPLOAD_IMAGE_DIR, UPLOAD_VIDEO_DIR } from '~/constants/dir.js';
 import fs from 'fs';
 import mediaService from '~/services/medias.services.js';
 
@@ -30,6 +30,17 @@ class MediaController {
                   message: 'Upload video successfully',
                   url
             });
+      }
+
+      serveVideoController = async (req: Request, res: Response) => {
+            const { filename } = req.params;
+            const filePath = path.resolve(UPLOAD_VIDEO_DIR, filename);
+            if (!fs.existsSync(filePath)) {
+                  return res.status(404).json({
+                        message: 'Video not found'
+                  });
+            }
+            res.status(200).sendFile(filePath);
       }
 }
 

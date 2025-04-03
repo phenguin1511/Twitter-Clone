@@ -21,7 +21,7 @@ class MediaService {
                   await sharp(imageBuffer).jpeg().toFile(newFilePath);
                   await fs.promises.unlink(file.filepath);
                   return {
-                        url: isProduction ? `${process.env.HOST}/static/${newFileName}.jpg` : `http://localhost:${process.env.PORT}/static/${newFileName}.jpg`,
+                        url: isProduction ? `${process.env.HOST}/static/image${newFileName}.jpg` : `http://localhost:${process.env.PORT}/static/image/${newFileName}.jpg`,
                         type: MediaType.Image
                   };
             }));
@@ -30,11 +30,13 @@ class MediaService {
 
       async hanldeUploadVideo(req: Request) {
             const data = await hanldeUploadVideoService(req);
-            const { newFilename } = data[0];
-            return {
-                  url: isProduction ? `${process.env.HOST}/static/${newFilename}.mp4` : `http://localhost:${process.env.PORT}/static/${newFilename}.mp4`,
-                  type: MediaType.Video
-            };
+            const result: Media[] = data.map((file) => {
+                  return {
+                        url: isProduction ? `${process.env.HOST}/static/video/${file.newFilename}` : `http://localhost:${process.env.PORT}/static/video/${file.newFilename}`,
+                        type: MediaType.Video
+                  };
+            })
+            return result;
       }
 }
 

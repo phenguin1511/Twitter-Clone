@@ -4,5 +4,6 @@ import wrapRequestHandler from "~/utils/handlers.js";
 const staticRouter = Router();
 
 staticRouter.get("/image/:filename", wrapRequestHandler(mediaController.serveImageController));
+staticRouter.get("/video/:filename", wrapRequestHandler(mediaController.serveVideoController));
 
 export default staticRouter;

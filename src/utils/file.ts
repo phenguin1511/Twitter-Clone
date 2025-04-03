@@ -1,9 +1,9 @@
 import path from "path";
 import fs from "fs";
-import { Request } from "express";
+import e, { Request } from "express";
 import formidable from "formidable";
 import { File } from "formidable";
-import { IMAGE_TEMP_DIR, VIDEO_TEMP_DIR } from "~/constants/dir.js";
+import { IMAGE_TEMP_DIR, UPLOAD_IMAGE_DIR, VIDEO_TEMP_DIR, UPLOAD_VIDEO_DIR } from "~/constants/dir.js";
 
 export const initFolder = () => {
       if (!fs.existsSync(IMAGE_TEMP_DIR)) {
@@ -11,6 +11,12 @@ export const initFolder = () => {
       }
       if (!fs.existsSync(VIDEO_TEMP_DIR)) {
             fs.mkdirSync(VIDEO_TEMP_DIR, { recursive: true });
+      }
+      if (!fs.existsSync(UPLOAD_IMAGE_DIR)) {
+            fs.mkdirSync(UPLOAD_IMAGE_DIR, { recursive: true })
+      }
+      if (!fs.existsSync(UPLOAD_VIDEO_DIR)) {
+            fs.mkdirSync(UPLOAD_VIDEO_DIR, { recursive: true });
       }
 };
 
@@ -52,7 +58,7 @@ export const getNewFileName = (newFilename: string) => {
 
 export const hanldeUploadVideoService = async (req: Request) => {
       const form = formidable({
-            uploadDir: VIDEO_TEMP_DIR,
+            uploadDir: UPLOAD_VIDEO_DIR,
             maxFiles: 4,
             maxFileSize: 50 * 1024 * 1024,
             maxTotalFileSize: 50 * 1024 * 1024 * 4,
@@ -72,7 +78,19 @@ export const hanldeUploadVideoService = async (req: Request) => {
                   if (!Boolean(files.video)) {
                         return reject(new Error('No video uploaded'));
                   }
+                  const videos = files.video as File[];
+                  videos.forEach((video) => {
+                        const ext = getExtention(video.originalFilename as string);
+                        fs.renameSync(video.filepath, video.filepath + '.' + ext);
+                        video.newFilename = video.newFilename + '.' + ext;
+                  })
                   resolve(files.video as File[]);
             });
       });
 };
+
+
+const getExtention = (fullname: string) => {
+      const namearr = fullname.split('.');
+      return namearr[namearr.length - 1]
+}
