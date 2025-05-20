@@ -480,7 +480,6 @@ class UsersService {
       message: USERS_MESSAGES.UNFOLLOW_SUCCESS,
       errCode: 0
     };
-
   }
 
   async changePassword(user_id: string, body: ChangePasswordRequest) {
